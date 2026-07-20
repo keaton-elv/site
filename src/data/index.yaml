@@ -1,0 +1,49 @@
+# global index of all artifacts
+# fields: id, title, year, medium, device, dek, image, video, still, alt
+
+- id: chiffonade
+  title: Chiffonade
+  year: 2026
+  medium: writing
+  dek: thin spirals
+  image: ../archive/scans/april.avif
+
+- id: sunbeams
+  title: sunbeams on mt. tam
+  year: 2026
+  medium: video
+  device: iPhone
+  video: /media/sunbeams.mp
+  still: ../archive/stills/sunbeams.avif
+
+- id: temperance
+  title: a tarot spread
+  year: 2026
+  medium: scan
+  device: CanoScan LiDE 400
+  image: ../archive/scans/temperance.avif
+
+- id: perpetuum
+  title: perpetuum
+  year: 2026
+  medium: object
+  image: ../archive/work/perpetuum.avif
+
+- id: tgiq-cover
+  title: the garden in question cover
+  year: 2026
+  medium: digital media
+  image: ../archive/design/tgiq-cover.avif
+
+- id: sf_cemetary
+  title: sf national cemetery
+  year: 2026
+  medium: photo
+  device: iPhone
+  image: ../archive/photos/sf_cemetary.avif
+
+- id: greenpoint
+  title: a tree in greenpoint
+  year: 2026
+  medium: photo
+  image: ../archive/photos/greenpoint.avif

@@ -1,0 +1,102 @@
+---
+import { Image } from "astro:assets";
+import Layout from "../layouts/Layout.astro";
+
+const order = [
+    "misc",
+    "didion_tarot",
+    "misc_big",
+    "foundation",
+    "castle",
+    "whitenoise_darklaughter",
+    "contemp_essays",
+    "2666",
+    "white",
+    "ursula",
+];
+const scans = import.meta.glob<ImageMetadata>("../archive/bookshelf/*.avif", {
+    eager: true,
+    import: "default",
+});
+const shelves = order.map((name) => scans[`../archive/bookshelf/${name}.avif`]);
+---
+
+<Layout
+    title="bookshelf — Keaton Elvins"
+    description="some I enjoy, mostly read, all possessed (in one form or another)"
+>
+    <main class="case">
+        <header>
+            <h1>I AM DEEPLY ENAMOURED WITH THE BOOK COVER.</h1>
+            <p>
+                A book is inherently a container for language. In this sense,
+                the cover is incidental; it is a visual interpretation that is
+                structurally <em>outside</em> the text and cannot alter it. It teases,
+                it frames, it attempts to sell, but there is undeniably a separateness.
+                And yet, the cover does condition our <em>reading</em> of the book.
+            </p>
+            <p>
+                Something is carried by the reader across this irreducible
+                divide and into the text itself. Inside our head, a unique
+                entanglement forms: symbol and referent, Matter and Logos,
+                book-object and book. So here are some I enjoy, mostly read, all
+                possessed (in one form or another), and at hand to lend to those
+                who are kind to them.
+            </p>
+        </header>
+        {
+            shelves.map((shelf) => (
+                <Image
+                    src={shelf}
+                    alt=""
+                    sizes="(max-width: 45rem) 92vw, 64rem"
+                />
+            ))
+        }
+    </main>
+</Layout>
+
+<style>
+    .case {
+        display: grid;
+        gap: 1rem;
+        max-width: 64rem;
+        margin-inline: auto;
+        padding: 5rem 1.25rem 9rem;
+        font-family: var(--font-serif);
+        font-size: 1.875rem;
+        line-height: 1.25;
+        font-variant-ligatures: normal;
+    }
+
+    header {
+        margin-bottom: 0.5rem;
+    }
+
+    h1 {
+        margin: 0;
+        font-size: 4.5rem;
+        font-style: italic;
+        font-weight: 400;
+        line-height: 1;
+    }
+
+    header p {
+        margin: 1rem 0 0;
+        text-align: justify;
+        hyphens: auto;
+    }
+
+    @media (max-width: 45rem) {
+        .case {
+            padding: 3rem 1.25rem 7rem;
+            font-size: 1.125rem;
+        }
+        h1 {
+            font-size: 2.25rem;
+        }
+        header p {
+            margin-top: 0.5rem;
+        }
+    }
+</style>

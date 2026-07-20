@@ -1,0 +1,153 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { getImage, Image } from "astro:assets";
+import Layout from "./Layout.astro";
+
+interface Props {
+    entry: CollectionEntry<"artifacts">;
+}
+
+const { entry } = Astro.props;
+const a = entry.data;
+
+// sizing rules: AGENTS.md → images & video. the box below and the css at
+// the foot of this file are the same three limits; keep them in step.
+const CAP = 1.5;
+
+const native = (a.image ?? a.still)!;
+const still = a.still && (await getImage({ src: a.still, format: "avif" }));
+const box = (chrome: string) =>
+    `min(${Math.round(native.width / CAP)}px, calc(100vw - 4rem), calc((100vh - ${chrome}) * ${(native.width / native.height).toFixed(4)}))`;
+const sizes = `(min-width: 45rem) ${box("4rem")}, ${box("10rem")}`;
+
+const record = [
+    ["medium", a.medium],
+    ["device", a.device],
+    ["year", String(a.year)],
+    ["resolution", `${native.width} × ${native.height}`],
+].filter(([, v]) => v) as [string, string][];
+---
+
+<Layout title={`${a.title} — Keaton Elvins`}>
+    <main class="vitrine">
+        <figure
+            style={`--nw: ${native.width}px; --nh: ${native.height}px; --cap: ${CAP}`}
+        >
+            {
+                a.video ? (
+                    <video
+                        src={a.video}
+                        poster={still?.src}
+                        style={`aspect-ratio: ${native.width} / ${native.height}`}
+                        autoplay
+                        muted
+                        loop
+                        playsinline
+                        preload="metadata"
+                    />
+                ) : (
+                    a.image && (
+                        <Image
+                            src={a.image}
+                            alt={a.alt ?? ""}
+                            sizes={sizes}
+                            format="avif"
+                            loading="eager"
+                            fetchpriority="high"
+                        />
+                    )
+                )
+            }
+            <figcaption class="record">
+                <h1>{a.title}</h1>
+                {a.dek && <p class="dek">{a.dek}</p>}
+                <dl>
+                    {
+                        record.map(([k, v]) => (
+                            <div class="field">
+                                <dt>{k}</dt>
+                                <dd>{v}</dd>
+                            </div>
+                        ))
+                    }
+                </dl>
+            </figcaption>
+        </figure>
+    </main>
+</Layout>
+
+<style>
+    .vitrine {
+        display: grid;
+        place-items: center;
+        height: 100svh;
+        padding: 2rem;
+        overflow: clip;
+    }
+
+    figure {
+        --chrome: 10rem;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.85rem;
+        margin: 0;
+    }
+    @media (min-width: 45rem) {
+        figure {
+            --chrome: 4rem;
+            flex-direction: row;
+            align-items: flex-start;
+            gap: 2rem;
+        }
+        .record {
+            max-width: 18rem;
+        }
+    }
+    .record h1 {
+        margin: 0;
+        font: 400 0.8125rem/1.5 var(--font-mono);
+        color: var(--ink);
+    }
+    .record .dek {
+        margin: 0.1rem 0 0;
+        color: var(--dim);
+    }
+    .record dl {
+        display: grid;
+        grid-template-columns: max-content auto;
+        gap: 0.1rem 1.5rem;
+        margin: 0.6rem 0 0;
+        font-size: 0.75rem;
+    }
+    .record .field {
+        display: contents;
+    }
+    .record dt {
+        grid-column: 1;
+        color: var(--dim);
+    }
+    .record dd {
+        grid-column: 2;
+        margin: 0;
+        color: var(--ink);
+    }
+
+    .vitrine img {
+        max-width: min(calc(var(--nw) / var(--cap)), calc(100vw - 4rem));
+        max-height: min(
+            calc(var(--nh) / var(--cap)),
+            calc(100svh - var(--chrome))
+        );
+        width: auto;
+        height: auto;
+    }
+
+    .vitrine video {
+        width: min(calc(var(--nw) / var(--cap)), calc(100vw - 4rem));
+        max-height: min(
+            calc(var(--nh) / var(--cap)),
+            calc(100svh - var(--chrome))
+        );
+    }
+</style>

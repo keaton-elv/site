@@ -1,0 +1,302 @@
+---
+import { getCollection } from "astro:content";
+
+const artifacts = await getCollection("artifacts");
+---
+
+<dialog id="panel" aria-label="index">
+    <div class="frame">
+        <input
+            id="panel-filter"
+            type="search"
+            name="search"
+            placeholder="what is it that you are looking for?"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+            enterkeyhint="go"
+            role="combobox"
+            aria-expanded="true"
+            aria-controls="panel-list"
+            aria-autocomplete="list"
+            aria-label="filter the index"
+        />
+        <nav id="panel-list" role="listbox" aria-label="everything">
+            <section>
+                <p class="group">pages</p>
+                <div class="rows">
+                    <a class="row" href="/"
+                        ><span>home</span><span class="meta">/home</span></a
+                    >
+                    <a class="row" href="/bookshelf"
+                        ><span>bookshelf</span><span class="meta"
+                            >/bookshelf</span
+                        ></a
+                    >
+                </div>
+            </section>
+            <section>
+                <p class="group">artifacts</p>
+                <div class="rows">
+                    {
+                        artifacts.map((a) => (
+                            <a class="row" href={`/${a.id}`}>
+                                <span>{a.data.title}</span>
+                                <span class="meta">
+                                    {a.data.medium}, {a.data.year}
+                                </span>
+                            </a>
+                        ))
+                    }
+                </div>
+            </section>
+        </nav>
+        <p class="hint">
+            <span>↑↓ move · ⮠ select · ⌘+k open/close index</span>
+            <button id="panel-fiat">fiat nox!</button>
+        </p>
+    </div>
+</dialog>
+
+<style>
+    #panel {
+        width: min(64rem, calc(100vw - 2rem));
+        max-height: min(76vh, 50rem);
+        margin: 10vh auto auto;
+        padding: 0;
+        border: 0;
+        background: var(--bg);
+    }
+    #panel::backdrop {
+        background: rgb(0 0 0 / 35%);
+    }
+
+    .frame {
+        display: flex;
+        flex-direction: column;
+        max-height: inherit;
+        padding: 1rem;
+    }
+
+    #panel-filter {
+        appearance: none;
+        flex: none;
+        width: 100%;
+        padding: 0.1rem 0.1rem;
+        border: 0;
+        border-bottom: 1px solid var(--ink);
+        background: none;
+        color: inherit;
+        font: inherit;
+        font-size: 1.3rem;
+        font-family: var(--font-sans);
+        letter-spacing: -0.05em;
+    }
+    @media (min-width: 45rem) {
+        #panel-filter {
+            font-size: 4rem;
+        }
+    }
+    #panel-filter::-webkit-search-decoration,
+    #panel-filter::-webkit-search-cancel-button {
+        display: none;
+    }
+    #panel-filter::placeholder {
+        color: var(--dim);
+        opacity: 1;
+    }
+    #panel-filter:focus {
+        outline: none;
+    }
+
+    nav {
+        overflow-y: auto;
+        scrollbar-width: none;
+    }
+    nav::-webkit-scrollbar {
+        display: none;
+    }
+
+    section {
+        display: grid;
+        grid-template-columns: 9rem 1fr;
+    }
+    section + section {
+        border-top: 1px solid var(--line);
+    }
+
+    .group {
+        margin: 0.55rem 1rem;
+        font-size: 0.8125rem;
+        color: var(--dim);
+    }
+
+    .row {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        width: 100%;
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+        text-align: left;
+        text-decoration: none;
+    }
+    .row .meta {
+        color: var(--dim);
+        font-size: 0.8125rem;
+        line-height: 1.85;
+    }
+    .row.active {
+        background: var(--ink);
+        color: var(--bg);
+    }
+    .row.active .meta {
+        color: var(--bg);
+    }
+    .row[hidden] {
+        display: none;
+    }
+
+    .hint {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex: none;
+        margin: 0;
+        /* low ascender (958/1000 vs 715 cap) so manual center */
+        padding: 0.525rem 1rem 0.675rem;
+        border-top: 1px solid var(--line);
+        font-size: 0.75rem;
+        color: var(--dim);
+    }
+    #panel-fiat {
+        margin-left: auto;
+    }
+    #panel-fiat:hover {
+        color: var(--ink);
+    }
+
+    @media (max-width: 45rem) {
+        section {
+            grid-template-columns: 1fr;
+        }
+        .group {
+            margin-bottom: 0.1rem;
+        }
+        .hint span {
+            display: none;
+        }
+    }
+</style>
+
+<script>
+    const panel = document.getElementById("panel") as HTMLDialogElement;
+    const filter = document.getElementById("panel-filter") as HTMLInputElement;
+    const fiat = document.getElementById("panel-fiat") as HTMLElement;
+    const rows = [...panel.querySelectorAll<HTMLElement>(".row")];
+    const root = document.documentElement;
+
+    const effectiveTheme = () =>
+        root.dataset.theme ??
+        (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    const relabel = () => {
+        fiat.textContent =
+            effectiveTheme() === "dark" ? "fiat lux!" : "fiat nox!";
+    };
+
+    const open = () => {
+        filter.value = "";
+        apply("");
+        relabel();
+        panel.showModal();
+    };
+
+    document
+        .querySelector("[data-panel-open]")
+        ?.addEventListener("click", open);
+    addEventListener("keydown", (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+            e.preventDefault();
+            panel.open ? panel.close() : open();
+        }
+    });
+
+    panel.addEventListener("click", (e) => {
+        if (e.target === panel) panel.close();
+    });
+
+    // a page restored from the back/forward cache keeps its dom — close over it
+    addEventListener("pageshow", (e) => {
+        if (e.persisted && panel.open) panel.close();
+    });
+
+    rows.forEach((row, i) => {
+        row.id ||= `panel-opt-${i}`;
+        row.setAttribute("role", "option");
+    });
+
+    const visible = () => rows.filter((r) => !r.hidden);
+    const select = (row: HTMLElement | undefined, scroll = true) => {
+        for (const r of rows) {
+            r.classList.toggle("active", r === row);
+            r.setAttribute("aria-selected", String(r === row));
+        }
+        filter.setAttribute("aria-activedescendant", row?.id ?? "");
+        if (scroll) row?.scrollIntoView({ block: "nearest" });
+    };
+
+    function apply(q: string) {
+        for (const row of rows)
+            row.hidden = !(row.textContent! + (row.dataset.keywords ?? ""))
+                .toLowerCase()
+                .includes(q);
+        for (const section of panel.querySelectorAll("section")) {
+            section.hidden = ![
+                ...section.querySelectorAll<HTMLElement>(".row"),
+            ].some((r) => !r.hidden);
+        }
+        select(q ? visible()[0] : undefined);
+    }
+
+    filter.addEventListener("input", () =>
+        apply(filter.value.trim().toLowerCase()),
+    );
+
+    panel.addEventListener("keydown", (e) => {
+        if (e.key !== "ArrowDown" && e.key !== "ArrowUp" && e.key !== "Enter")
+            return;
+        const list = visible();
+        const at = list.findIndex((r) => r.classList.contains("active"));
+        if (e.key === "Enter") {
+            if (at >= 0 && document.activeElement === filter) {
+                e.preventDefault();
+                list[at].click();
+            }
+            return;
+        }
+        e.preventDefault();
+        const next =
+            e.key === "ArrowDown"
+                ? Math.min(at + 1, list.length - 1)
+                : Math.max(at - 1, 0);
+        select(list[next]);
+    });
+
+    // one selection, moved by keys or pointer alike; navigating within the
+    // page (e.g. /#artifact) should still close the panel
+    for (const row of rows) {
+        row.addEventListener("pointerenter", () => select(row, false));
+        if (row.matches("a"))
+            row.addEventListener("click", () => panel.close());
+    }
+
+    fiat.addEventListener("click", () => {
+        const next = effectiveTheme() === "dark" ? "light" : "dark";
+        root.dataset.theme = next;
+        localStorage.theme = next;
+        relabel();
+    });
+
+    if (new URLSearchParams(location.search).has("panel")) open();
+</script>

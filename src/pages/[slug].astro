@@ -1,0 +1,33 @@
+---
+import { getCollection, render } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+import Essay from "../layouts/Essay.astro";
+import Vitrine from "../layouts/Vitrine.astro";
+
+// Every artifact lives at /<id>; its medium decides the display
+export async function getStaticPaths() {
+    const artifacts = await getCollection("artifacts");
+    return artifacts.map((entry) => ({
+        params: { slug: entry.id },
+        props: { artifact: entry },
+    }));
+}
+
+interface Props {
+    artifact: CollectionEntry<"artifacts">;
+}
+
+const { artifact } = Astro.props;
+const Content =
+    artifact.data.medium === "writing" && (await render(artifact)).Content;
+---
+
+{
+    Content ? (
+        <Essay entry={artifact}>
+            <Content />
+        </Essay>
+    ) : (
+        <Vitrine entry={artifact} />
+    )
+}

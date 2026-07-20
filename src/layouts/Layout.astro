@@ -1,0 +1,86 @@
+---
+import { Font } from "astro:assets";
+import "../styles/global.css";
+import Panel from "../components/Panel.astro";
+
+interface Props {
+    title?: string;
+    description?: string;
+}
+
+const { title = "Keaton Elvins", description } = Astro.props;
+---
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="generator" content={Astro.generator} />
+        <title>{title}</title>
+        {description && <meta name="description" content={description} />}
+        <meta property="og:title" content={title} />
+        {
+            description && (
+                <meta property="og:description" content={description} />
+            )
+        }
+        <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+        <meta
+            name="theme-color"
+            media="(prefers-color-scheme: light)"
+            content="#f8f8f8"
+        />
+        <meta
+            name="theme-color"
+            media="(prefers-color-scheme: dark)"
+            content="#0f0f0f"
+        />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <Font cssVariable="--font-mono" preload />
+        <Font cssVariable="--font-serif" />
+        <Font cssVariable="--font-sans" />
+        <script is:inline>
+            const theme =
+                new URLSearchParams(location.search).get("theme") ??
+                localStorage.theme;
+            if (theme) document.documentElement.dataset.theme = theme;
+        </script>
+    </head>
+    <body>
+        <button class="glyph" data-panel-open aria-label="open the index">
+            <!-- asterism traced from Monaco (U+2042) -->
+            <svg viewBox="0 0 1067 995" fill="currentColor" aria-hidden="true">
+                <path
+                    d="M551 695 741 706 637 551 726 500 809 668 892 500 980 551 876 706 1067 695V798L876 784L980 943L892 995L809 825L726 995L637 943L741 784L551 798ZM0 695 191 706 86 551 175 500 259 668 342 500 430 551 326 706 517 695V798L326 784L430 943L342 995L259 825L175 995L86 943L191 784L0 799ZM276 195 466 206 362 51 451 0 534 168 617 0 705 51 601 206 792 195V298L601 284L705 443L617 495L534 325L451 495L362 443L466 284L276 298Z"
+                ></path>
+            </svg>
+        </button>
+        <slot />
+        <Panel />
+        <script>
+            const videos = document.querySelectorAll("video");
+            if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+                for (const v of videos) {
+                    v.removeAttribute("autoplay");
+                    v.pause();
+                }
+            } else {
+                const observer = new IntersectionObserver((entries) => {
+                    for (const { target, isIntersecting } of entries) {
+                        const v = target as HTMLVideoElement;
+                        if (isIntersecting) v.play().catch(() => {});
+                        else v.pause();
+                    }
+                });
+                for (const v of videos) observer.observe(v);
+                addEventListener("pageshow", ({ persisted }) => {
+                    if (!persisted) return;
+                    for (const v of videos) {
+                        observer.unobserve(v);
+                        observer.observe(v);
+                    }
+                });
+            }
+        </script>
+    </body>
+</html>

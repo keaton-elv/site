@@ -1,0 +1,117 @@
+---
+import { getCollection, getEntry } from "astro:content";
+import { getImage, Image } from "astro:assets";
+import Layout from "../layouts/Layout.astro";
+
+// sizing rules: AGENTS.md → images & video. the bed's geometry lives here
+// and nowhere else — the css grid, the sizes hints, and each poster's
+// resolution are all derived from it.
+const COLUMNS = 16;
+const BED = 1600; // .scanner-bed max-width, 100rem
+const GUTTER = "1.2rem"; // its padding once it stacks
+
+const slot = (w: number) => `calc(min(100vw, ${BED}px) / ${COLUMNS} * ${w})`;
+const poster = (w: number) => Math.round((BED / COLUMNS) * w * 2);
+
+const artifacts = await Promise.all(
+    (await getCollection("home"))
+        .sort((a, b) => a.data.at - b.data.at)
+        .map(async ({ id, data: place }) => {
+            const artifact = await getEntry("artifacts", id);
+            if (!artifact)
+                throw new Error(`home.yaml: "${id}" is not in the index`);
+            const { data } = artifact;
+            return {
+                id,
+                place,
+                data,
+                still: data.still && {
+                    url: (
+                        await getImage({
+                            src: data.still,
+                            width: Math.min(data.still.width, poster(place.w)),
+                            format: "avif",
+                        })
+                    ).src,
+                    ratio: `${data.still.width} / ${data.still.height}`,
+                },
+            };
+        }),
+);
+---
+
+<Layout>
+    <main class="scanner-bed">
+        {
+            artifacts.map(({ id, data: a, place, still }, i) => {
+                const media = a.video ? (
+                    <video
+                        src={a.video}
+                        poster={still?.url}
+                        style={still && `aspect-ratio: ${still.ratio}`}
+                        autoplay
+                        muted
+                        loop
+                        playsinline
+                        preload="metadata"
+                    />
+                ) : (
+                    a.image && (
+                        <Image
+                            src={a.image}
+                            alt={a.alt ?? ""}
+                            sizes={`(max-width: 45rem) calc(100vw - ${GUTTER}), ${slot(place.w)}`}
+                            format="avif"
+                            loading={i === 0 ? "eager" : undefined}
+                            fetchpriority={i === 0 ? "high" : undefined}
+                        />
+                    )
+                );
+                return (
+                    <figure
+                        class="artifact"
+                        style={`--w: ${place.w}; --x: ${place.x}; --mt: ${place.mt}`}
+                    >
+                        <a href={`/${id}`}>{media}</a>
+                    </figure>
+                );
+            })
+        }
+    </main>
+</Layout>
+
+<style>
+    .scanner-bed {
+        display: grid;
+        grid-template-columns: repeat(16, 1fr);
+        gap: 0;
+        max-width: 100rem;
+        padding: 2rem 0rem 8rem;
+    }
+
+    .artifact {
+        grid-column: var(--x) / span var(--w);
+        margin: calc(var(--mt) * 1rem) 0 0;
+    }
+
+    .artifact video {
+        width: 100%;
+    }
+
+    .artifact > a {
+        display: block;
+    }
+
+    @media (max-width: 45rem) {
+        .scanner-bed {
+            display: block;
+            padding: 5rem 0.6rem 6rem;
+        }
+        .artifact {
+            margin: 2rem 0 0;
+        }
+        .artifact:first-child {
+            margin-top: 0;
+        }
+    }
+</style>

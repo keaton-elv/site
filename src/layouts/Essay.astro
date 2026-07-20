@@ -1,0 +1,234 @@
+---
+import type { CollectionEntry } from "astro:content";
+import Layout from "./Layout.astro";
+
+interface Props {
+    entry: CollectionEntry<"artifacts">;
+}
+
+const { entry } = Astro.props;
+const { title, dek } = entry.data;
+
+// Alternate verso (text left, asides right) and recto (the mirror).
+// Each h2 also gets a § anchor. Figure images render at column width,
+// so their `sizes` are corrected here (keep in step with --measure).
+const html = (await Astro.slots.render("default"))
+    .replaceAll(
+        /sizes="[^"]*"/g,
+        'sizes="(max-width: 68rem) calc(100vw - 2.5rem), 42rem"',
+    )
+    .replaceAll(/<div class="(wide|full)">[\s\S]*?<\/div>/g, (breakout, kind) =>
+        breakout.replaceAll(
+            /sizes="[^"]*"/g,
+            kind === "full"
+                ? 'sizes="100vw"'
+                : 'sizes="(max-width: 68rem) calc(100vw - 2.5rem), 60.5rem"',
+        ),
+    );
+const [lede, ...sections] = html.split(/(?=<h2 )/);
+const spreads = sections.map((section) => {
+    const id = section.match(/^<h2 id="([^"]+)"/)?.[1];
+    return id
+        ? section.replace(
+              "</h2>",
+              `<a class="sec" href="#${id}" aria-label="link to this section">&thinsp;§</a></h2>`,
+          )
+        : section;
+});
+---
+
+<Layout title={`${title}`} description={dek}>
+    <main class="essay">
+        <header class="spread">
+            <h1>{title}</h1>
+        </header>
+        {lede.trim() && <section class="spread" set:html={lede} />}
+        {
+            spreads.map((spread, i) => (
+                <section
+                    class={`spread${i % 2 ? " recto" : ""}`}
+                    set:html={spread}
+                />
+            ))
+        }
+    </main>
+</Layout>
+
+<style is:global>
+    .essay {
+        --measure: 42rem;
+        --aside-w: 15rem;
+        --aside-gap: 3.5rem;
+        --pad-left: 6rem;
+        padding: 7rem 2rem 9rem var(--pad-left);
+        font-family: var(--font-serif);
+        font-size: 1.3125rem;
+        line-height: 1.55;
+        font-variant-ligatures: normal;
+        overflow-x: clip;
+    }
+
+    /* the spread: verso by default, recto pushes the column right */
+    .essay .spread {
+        width: min(var(--measure), 100%);
+        margin-top: 4.5rem;
+    }
+    .essay .spread.recto {
+        margin-left: calc(var(--aside-w) + var(--aside-gap));
+    }
+    .essay header.spread {
+        margin-top: 0;
+    }
+    .essay header.spread + .spread {
+        margin-top: 3rem;
+    }
+
+    .essay h1 {
+        margin: 0;
+        font-size: 6rem;
+        font-style: italic;
+        font-weight: 400;
+        line-height: 1.1;
+    }
+    .essay h2 {
+        margin: 0 0 1.75rem;
+        font-size: 1.5rem;
+        font-weight: 400;
+        line-height: 1.25;
+        scroll-margin-top: 5rem;
+    }
+    .essay .sec {
+        opacity: 0;
+        color: var(--dim);
+        font-family: var(--font-mono);
+        font-size: 0.75em;
+        text-decoration: none;
+        transition:
+            opacity 240ms ease,
+            color 120ms ease;
+    }
+    .essay h2:hover .sec,
+    .essay .sec:focus-visible {
+        opacity: 1;
+    }
+    .essay .sec:hover {
+        color: var(--ink);
+    }
+
+    .essay .spread > p,
+    .essay blockquote > p {
+        text-align: justify;
+        hyphens: auto;
+    }
+
+    /* asides hang in the margin, anchored to the paragraph they precede */
+    .essay aside {
+        float: right;
+        clear: right;
+        width: var(--aside-w);
+        margin-right: calc(-1 * (var(--aside-w) + var(--aside-gap)));
+        font: 400 0.75rem/1.55 var(--font-mono);
+    }
+    .essay .recto aside {
+        float: left;
+        clear: left;
+        margin-right: 0;
+        margin-left: calc(-1 * (var(--aside-w) + var(--aside-gap)));
+    }
+    .essay aside .anchor {
+        font-family: var(--font-sans);
+        font-weight: 600;
+    }
+    .essay aside p {
+        margin: 0.5rem 0 0;
+        color: var(--dim);
+        text-indent: 0;
+    }
+
+    .essay figure {
+        margin: 2.25rem 0;
+    }
+    .essay figcaption {
+        margin-top: 0.6rem;
+        font: 400 0.75rem/1.5 var(--font-mono);
+        color: var(--dim);
+    }
+    .essay figure img {
+        width: 100%;
+        height: auto;
+    }
+
+    /* breakouts: .wide spans into the aside margin, .full takes the window */
+    .essay .spread > :is(.wide, .full) {
+        clear: both;
+    }
+    .essay .spread > .wide {
+        width: calc(var(--measure) + var(--aside-gap) + var(--aside-w));
+    }
+    .essay .spread.recto > .wide {
+        margin-left: calc(-1 * (var(--aside-gap) + var(--aside-w)));
+    }
+    .essay .spread > .full {
+        width: 100vw;
+        margin-left: calc(-1 * var(--pad-left));
+    }
+
+    .essay blockquote {
+        margin: 2rem 0;
+        padding-left: 1.5rem;
+        border-left: 1px solid var(--line);
+        font-style: italic;
+    }
+
+    .essay sup {
+        font-family: var(--font-mono);
+        font-size: 0.65em;
+        line-height: 0;
+    }
+
+    .essay .sc {
+        font-variant-caps: all-small-caps;
+        letter-spacing: 0.05em;
+    }
+
+    .essay :is(figcaption, aside, footer.notes, sup) {
+        font-variant-ligatures: none;
+    }
+
+    /* each section settles its own accounts */
+    .essay footer.notes {
+        margin-top: 3rem;
+        padding-top: 0.85rem;
+        border-top: 1px solid var(--line);
+        font: 400 0.75rem/1.6 var(--font-mono);
+        color: var(--dim);
+    }
+    .essay footer.notes p {
+        margin: 0 0 0.35rem;
+        text-indent: 0;
+    }
+
+    @media (max-width: 68rem) {
+        .essay {
+            --pad-left: 1.25rem;
+            padding: 6rem 1.25rem 7rem var(--pad-left);
+        }
+        .essay .spread.recto {
+            margin-left: 0;
+        }
+        .essay .spread > .wide,
+        .essay .spread.recto > .wide {
+            width: auto;
+            margin-left: 0;
+        }
+        .essay aside,
+        .essay .recto aside {
+            float: none;
+            clear: none;
+            width: auto;
+            margin: 1.75rem 0;
+            padding-left: 1.25rem;
+            border-left: 1px solid var(--ink);
+        }
+    }
+</style>

@@ -1,0 +1,120 @@
+/* a neutral ground for the accumulation of artifacts.
+   dark = scanner bed, light = archive light table. */
+
+:root {
+  color-scheme: light dark;
+  --bg: light-dark(#f8f8f8, #0f0f0f);
+  --ink: light-dark(#101010, #f0f0f0);
+  --dim: light-dark(#707070, #909090);
+  --line: light-dark(#d7d7d7, #2b2b2b);
+}
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--bg);
+  color: var(--ink);
+}
+
+body {
+  margin: 0;
+  font: 400 0.8125rem/1.5 var(--font-mono);
+  font-variant-ligatures: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+img,
+video {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.15em;
+  transition: text-decoration-color 120ms ease;
+}
+a:hover {
+  text-decoration-color: transparent;
+}
+
+::selection {
+  background: var(--ink);
+  color: var(--bg);
+}
+mark {
+  background: var(--ink);
+  color: var(--bg);
+  padding: 0.12em 0.2em 0.06em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+/* the panel locks the page beneath it */
+html:has(dialog[open]) body {
+  overflow: hidden;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 1px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* the only persistent ui,  */
+.glyph {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 5;
+  padding: 1rem 1.5rem;
+  line-height: 1;
+  color: #9c9c9c;
+  mix-blend-mode: difference;
+  transition: color 120ms ease;
+}
+.glyph svg {
+  display: block;
+  height: 2rem;
+  width: auto;
+}
+.glyph:hover {
+  color: #fff;
+}
+@media (max-width: 45rem) {
+    .glyph {
+        padding: 1.2rem 1rem;
+    }
+    .glyph svg {
+      height: 1.6rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

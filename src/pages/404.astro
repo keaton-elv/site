@@ -1,0 +1,35 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="404 — Keaton Elvins">
+    <main class="lost">
+        <h1>404</h1>
+        <p>nothing was filed here :^/</p>
+    </main>
+</Layout>
+
+<style>
+    .lost {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        min-height: 100vh;
+        min-height: 100svh;
+        padding: 2rem;
+    }
+
+    h1 {
+        margin: 0 0 0.5rem -0.05em;
+        font-family: var(--font-sans);
+        font-size: min(38vw, 22rem);
+        font-weight: 100;
+        line-height: 0.85;
+        letter-spacing: -0.02em;
+    }
+
+    p {
+        margin: 0 0 0.5rem;
+        color: var(--dim);
+    }
+</style>
