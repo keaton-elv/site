@@ -17,8 +17,10 @@ const ROWGAP = 1;
 const RECORD = 11;
 const STRIP = 8;
 
-const native = (a.image ?? a.still)!;
-const still = a.still && (await getImage({ src: a.still, format: "avif" }));
+const native = a.image;
+const still = a.video
+    ? await getImage({ src: a.image, format: "avif" })
+    : undefined;
 
 const stage = {
     wide: [2 * PAD + 2 * GAP + 2 * RECORD, 2 * PAD],
@@ -63,16 +65,14 @@ const record = [
                         preload="metadata"
                     />
                 ) : (
-                    a.image && (
-                        <Image
-                            src={a.image}
-                            alt={a.alt ?? ""}
-                            sizes={sizes}
-                            format="avif"
-                            loading="eager"
-                            fetchpriority="high"
-                        />
-                    )
+                    <Image
+                        src={a.image}
+                        alt={a.alt ?? ""}
+                        sizes={sizes}
+                        format="avif"
+                        loading="eager"
+                        fetchpriority="high"
+                    />
                 )
             }
             <figcaption class="record">

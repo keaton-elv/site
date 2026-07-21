@@ -1,5 +1,7 @@
 # global index of all artifacts
-# fields: id, title, year, medium, device, dek, image, video, still, alt
+# fields: id, title, year, medium, device, dek, image, video, alt, crop
+# image is required — for videos it is the still. crop (0 top … 1 bottom)
+# steers the panel thumb's vertical window when the image overflows it
 
 - id: chiffonade
   title: Chiffonade
@@ -13,8 +15,8 @@
   year: 2026
   medium: video
   device: iPhone
-  video: /media/sunbeams.mp
-  still: ../archive/stills/sunbeams.avif
+  video: /media/sunbeams.mp4
+  image: ../archive/stills/sunbeams.avif
 
 - id: temperance
   title: a tarot spread
@@ -28,9 +30,52 @@
   year: 2026
   medium: object
   image: ../archive/work/perpetuum.avif
+  crop: 0.2
 
 - id: tgiq-cover
   title: the garden in question cover
   year: 2026
-  medium: digital media
+  medium: digital
   image: ../archive/design/tgiq-cover.avif
+
+- id: hotel-spinne
+  title: grindelwald at night
+  year: 2022
+  medium: photo
+  device: fujifilm x100v
+  image: ../archive/photos/hotel-spinne.avif
+
+- id: tromsø
+  title: dogsledding in tromsø
+  year: 2022
+  medium: photo
+  device: fujifilm x100v
+  image: ../archive/photos/tromsø.avif
+
+- id: marienplatz
+  title: marienplatz
+  year: 2022
+  medium: photo
+  device: fujifilm x100v
+  image: ../archive/photos/marienplatz.avif
+
+- id: pilatus
+  title: pilatus
+  year: 2022
+  medium: photo
+  device: fujifilm x100v
+  image: ../archive/photos/pilatus.avif
+
+- id: rome
+  title: rome
+  year: 2022
+  medium: photo
+  device: fujifilm x100v
+  image: ../archive/photos/rome.avif
+
+- id: vestvågøy
+  title: stuck in vestvågøy
+  year: 2022
+  medium: photo
+  device: fujifilm x100v
+  image: ../archive/photos/vestvågøy.avif

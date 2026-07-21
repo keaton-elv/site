@@ -4,8 +4,6 @@ import { getImage, Image } from "astro:assets";
 import Layout from "../layouts/Layout.astro";
 
 // sizing rules: AGENTS.md → images & video. the bed's geometry lives here
-// and nowhere else — the css grid, the sizes hints, and each poster's
-// resolution are all derived from it.
 const COLUMNS = 16;
 const BED = 1600; // .scanner-bed max-width, 100rem
 const GUTTER = "1.2rem"; // its padding once it stacks
@@ -25,16 +23,21 @@ const artifacts = await Promise.all(
                 id,
                 place,
                 data,
-                still: data.still && {
-                    url: (
-                        await getImage({
-                            src: data.still,
-                            width: Math.min(data.still.width, poster(place.w)),
-                            format: "avif",
-                        })
-                    ).src,
-                    ratio: `${data.still.width} / ${data.still.height}`,
-                },
+                still: data.video
+                    ? {
+                          url: (
+                              await getImage({
+                                  src: data.image,
+                                  width: Math.min(
+                                      data.image.width,
+                                      poster(place.w),
+                                  ),
+                                  format: "avif",
+                              })
+                          ).src,
+                          ratio: `${data.image.width} / ${data.image.height}`,
+                      }
+                    : undefined,
             };
         }),
 );
@@ -56,16 +59,14 @@ const artifacts = await Promise.all(
                         preload="metadata"
                     />
                 ) : (
-                    a.image && (
-                        <Image
-                            src={a.image}
-                            alt={a.alt ?? ""}
-                            sizes={`(max-width: 45rem) calc(100vw - ${GUTTER}), ${slot(place.w)}`}
-                            format="avif"
-                            loading={i === 0 ? "eager" : undefined}
-                            fetchpriority={i === 0 ? "high" : undefined}
-                        />
-                    )
+                    <Image
+                        src={a.image}
+                        alt={a.alt ?? ""}
+                        sizes={`(max-width: 45rem) calc(100vw - ${GUTTER}), ${slot(place.w)}`}
+                        format="avif"
+                        loading={i === 0 ? "eager" : undefined}
+                        fetchpriority={i === 0 ? "high" : undefined}
+                    />
                 );
                 return (
                     <figure

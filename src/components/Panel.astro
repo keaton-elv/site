@@ -1,7 +1,65 @@
 ---
+import type { ImageMetadata } from "astro";
 import { getCollection } from "astro:content";
+import { getImage } from "astro:assets";
+import Asterism from "./Asterism.astro";
+import home from "../archive/photos/home.avif";
+import bookshelf from "../archive/photos/bookshelf.avif";
+
+// the cutout in css px — mirrors --thumb-h below; served once at 2×.
+// thumbs cover the frame; an entry's optional crop steers the vertical
+// window (0 top … 1 bottom) when the image overflows it
+const THUMB_W = 640;
+const THUMB_H = 480;
+
+// serve the cover size uncropped — css places the window
+const cover = async (image: ImageMetadata) => {
+    const s = Math.max(
+        (THUMB_W * 2) / image.width,
+        (THUMB_H * 2) / image.height,
+    );
+    return (
+        await getImage({
+            src: image,
+            width: Math.round(image.width * s),
+            height: Math.round(image.height * s),
+            format: "avif",
+        })
+    ).src;
+};
+
+// rooms; give one an image (and optional crop) to stock its thumb
+const pages: {
+    id: string;
+    href: string;
+    title: string;
+    meta: string;
+    image?: ImageMetadata;
+    crop?: number;
+}[] = [
+    { id: "home", href: "/", title: "home", meta: "/home", image: home },
+    {
+        id: "bookshelf",
+        href: "/bookshelf",
+        title: "bookshelf",
+        meta: "/bookshelf",
+        image: bookshelf,
+    },
+];
 
 const artifacts = await getCollection("artifacts");
+const thumbs = await Promise.all(
+    [
+        ...pages.flatMap((p) =>
+            p.image ? [{ id: p.id, image: p.image, crop: p.crop }] : [],
+        ),
+        ...artifacts.map((a) => ({
+            id: a.id,
+            image: a.data.image,
+            crop: a.data.crop,
+        })),
+    ].map(async (t) => ({ id: t.id, crop: t.crop, src: await cover(t.image) })),
+);
 ---
 
 <dialog id="panel" aria-label="index">
@@ -9,6 +67,7 @@ const artifacts = await getCollection("artifacts");
         <input
             id="panel-filter"
             type="search"
+            autofocus
             name="search"
             placeholder="what is it that you are looking for?"
             autocomplete="off"
@@ -22,38 +81,69 @@ const artifacts = await getCollection("artifacts");
             aria-autocomplete="list"
             aria-label="filter the index"
         />
-        <nav id="panel-list" role="listbox" aria-label="everything">
-            <section>
-                <p class="group">pages</p>
-                <div class="rows">
-                    <a class="row" href="/"
-                        ><span>home</span><span class="meta">/home</span></a
-                    >
-                    <a class="row" href="/bookshelf"
-                        ><span>bookshelf</span><span class="meta"
-                            >/bookshelf</span
-                        ></a
-                    >
-                </div>
-            </section>
-            <section>
-                <p class="group">artifacts</p>
-                <div class="rows">
-                    {
-                        artifacts.map((a) => (
-                            <a class="row" href={`/${a.id}`}>
-                                <span>{a.data.title}</span>
-                                <span class="meta">
-                                    {a.data.medium}, {a.data.year}
-                                </span>
-                            </a>
-                        ))
-                    }
-                </div>
-            </section>
-        </nav>
+        <div class="stage">
+            <nav id="panel-list" role="listbox" aria-label="everything">
+                <section>
+                    <p class="group">pages</p>
+                    <div class="rows">
+                        {
+                            pages.map((p) => (
+                                <a
+                                    class="row"
+                                    href={p.href}
+                                    data-thumb={p.image && p.id}
+                                >
+                                    <span>{p.title}</span>
+                                    <span class="meta">{p.meta}</span>
+                                </a>
+                            ))
+                        }
+                    </div>
+                </section>
+                <section>
+                    <p class="group">artifacts</p>
+                    <div class="rows">
+                        {
+                            artifacts.map((a) => (
+                                <a
+                                    class="row"
+                                    href={`/${a.id}`}
+                                    data-thumb={a.id}
+                                >
+                                    <span>{a.data.title}</span>
+                                    <span class="meta">
+                                        {a.data.medium}, {a.data.year}
+                                    </span>
+                                </a>
+                            ))
+                        }
+                    </div>
+                </section>
+            </nav>
+            <figure class="cutout" aria-hidden="true">
+                <Asterism />
+                {
+                    thumbs.map((t) => (
+                        <img
+                            src={t.src}
+                            data-thumb-of={t.id}
+                            alt=""
+                            style={
+                                t.crop != null
+                                    ? `--y: ${t.crop * 100}%`
+                                    : undefined
+                            }
+                            loading="lazy"
+                            decoding="async"
+                            hidden
+                        />
+                    ))
+                }
+            </figure>
+        </div>
         <p class="hint">
             <span>↑↓ move · ⮠ select · ⌘+k open/close index</span>
+            <button id="panel-close">close</button>
             <button id="panel-fiat">fiat nox!</button>
         </p>
     </div>
@@ -61,9 +151,10 @@ const artifacts = await getCollection("artifacts");
 
 <style>
     #panel {
-        width: min(64rem, calc(100vw - 2rem));
+        --thumb-h: 30rem; /* mirrors THUMB_H up top */
+        width: min(76rem, calc(100vw - 2rem));
         max-height: min(76vh, 50rem);
-        margin: 10vh auto auto;
+        margin: auto;
         padding: 0;
         border: 0;
         background: var(--bg);
@@ -110,24 +201,76 @@ const artifacts = await getCollection("artifacts");
         outline: none;
     }
 
+    /* fixed-height so the cutout keeps its ratio and filtering doesn't
+       resize the panel */
+    .stage {
+        display: flex;
+        flex: 0 1 auto;
+        height: var(--thumb-h);
+        min-height: 0;
+    }
+
     nav {
+        flex: 1 1 auto;
+        min-width: 0;
         overflow-y: auto;
+        overscroll-behavior: contain;
         scrollbar-width: none;
     }
     nav::-webkit-scrollbar {
         display: none;
     }
 
+    .cutout {
+        display: grid;
+        /* one definite cell — auto tracks size to the img's intrinsic px,
+           leaving no fixed box for the cover crop to fill */
+        grid-template: 100% / 100%;
+        place-items: center;
+        flex: none;
+        height: 100%;
+        aspect-ratio: 4 / 3;
+        margin: 0;
+        overflow: hidden;
+    }
+    .cutout > :global(*) {
+        grid-area: 1 / 1;
+    }
+    /* the void's asterism; a stocked cutout swallows it */
+    .cutout > :global(svg) {
+        width: 14rem;
+        color: var(--ink);
+    }
+    .cutout:has(img:not([hidden])) > :global(svg) {
+        display: none;
+    }
+    .cutout img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: 50% var(--y, 50%);
+    }
+    .cutout img[hidden] {
+        /* global img { display: block } outranks the ua [hidden] rule */
+        display: none;
+    }
+
     section {
         display: grid;
-        grid-template-columns: 9rem 1fr;
+        grid-template-columns: 7rem 1fr;
     }
     section + section {
-        border-top: 1px solid var(--line);
+        border-top: 1px solid var(--ink);
+    }
+    section[hidden] {
+        /* the display: grid above outranks the ua [hidden] rule */
+        display: none;
     }
 
     .group {
-        margin: 0.55rem 1rem;
+        /* bottom short of symmetric so a lone row, not the label,
+           sets the section's floor */
+        margin: 0.55rem 1rem 0.4rem;
         font-size: 0.8125rem;
         color: var(--dim);
     }
@@ -137,12 +280,19 @@ const artifacts = await getCollection("artifacts");
         justify-content: space-between;
         gap: 1rem;
         width: 100%;
-        padding: 0.5rem 1rem;
+        padding: 0.35rem 0.75rem;
         font-size: 1rem;
+        letter-spacing: -0.02em;
         text-align: left;
         text-decoration: none;
     }
+    .row span:first-child {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
     .row .meta {
+        flex: none;
         color: var(--dim);
         font-size: 0.8125rem;
         line-height: 1.85;
@@ -166,9 +316,12 @@ const artifacts = await getCollection("artifacts");
         margin: 0;
         /* low ascender (958/1000 vs 715 cap) so manual center */
         padding: 0.525rem 1rem 0.675rem;
-        border-top: 1px solid var(--line);
+        border-top: 1px solid var(--ink);
         font-size: 0.75rem;
         color: var(--dim);
+    }
+    #panel-close {
+        display: none;
     }
     #panel-fiat {
         margin-left: auto;
@@ -178,14 +331,57 @@ const artifacts = await getCollection("artifacts");
     }
 
     @media (max-width: 45rem) {
+        /* a room of its own — the takeover replaces the floating card */
+        #panel {
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            max-width: none;
+            max-height: none;
+            margin: 0;
+        }
+        .frame {
+            height: 100%;
+            max-height: none;
+        }
+        /* the cutout pins beneath the search; rows scrub under it, and
+           the row passing its lower edge holds the selection */
+        .stage {
+            --cut-h: calc((100vw - 2rem) * 3 / 4);
+            position: relative;
+            flex: 1 1 auto;
+            height: auto;
+        }
+        .cutout {
+            position: absolute;
+            inset: 0 0 auto;
+            height: var(--cut-h);
+            background: var(--bg);
+            z-index: 1;
+        }
+        nav {
+            /* one row of rest zone under the cutout before the first row */
+            padding-top: calc(var(--cut-h) + 2.2rem);
+        }
+        /* runway below the list so the bottommost row can climb to the
+           line and rest there; 100% is the content box, which the
+           padding-top has already shortened by cutout + one row */
+        nav::after {
+            content: "";
+            display: block;
+            height: 100%;
+        }
         section {
             grid-template-columns: 1fr;
         }
         .group {
-            margin-bottom: 0.1rem;
+            display: none;
         }
         .hint span {
             display: none;
+        }
+        #panel-close {
+            display: block;
         }
     }
 </style>
@@ -195,6 +391,10 @@ const artifacts = await getCollection("artifacts");
     const filter = document.getElementById("panel-filter") as HTMLInputElement;
     const fiat = document.getElementById("panel-fiat") as HTMLElement;
     const rows = [...panel.querySelectorAll<HTMLElement>(".row")];
+    const thumbs = [...panel.querySelectorAll<HTMLImageElement>(".cutout img")];
+    const scroller = document.getElementById("panel-list") as HTMLElement;
+    const cutout = panel.querySelector(".cutout") as HTMLElement;
+    const mobile = matchMedia("(max-width: 45rem)");
     const root = document.documentElement;
 
     const effectiveTheme = () =>
@@ -210,11 +410,19 @@ const artifacts = await getCollection("artifacts");
         apply("");
         relabel();
         panel.showModal();
+        scroller.scrollTop = 0;
+        // hidden lazy imgs never intersect, so stock the cutout by hand
+        for (const t of thumbs) t.loading = "eager";
+        // browsing-first on small screens: the keyboard waits for a tap
+        if (mobile.matches) filter.blur();
     };
 
     document
         .querySelector("[data-panel-open]")
         ?.addEventListener("click", open);
+    document
+        .getElementById("panel-close")!
+        .addEventListener("click", () => panel.close());
     addEventListener("keydown", (e) => {
         if ((e.metaKey || e.ctrlKey) && e.key === "k") {
             e.preventDefault();
@@ -242,6 +450,8 @@ const artifacts = await getCollection("artifacts");
             r.classList.toggle("active", r === row);
             r.setAttribute("aria-selected", String(r === row));
         }
+        for (const t of thumbs)
+            t.hidden = t.dataset.thumbOf !== row?.dataset.thumb;
         filter.setAttribute("aria-activedescendant", row?.id ?? "");
         if (scroll) row?.scrollIntoView({ block: "nearest" });
     };
@@ -259,11 +469,20 @@ const artifacts = await getCollection("artifacts");
         select(q ? visible()[0] : undefined);
     }
 
-    filter.addEventListener("input", () =>
-        apply(filter.value.trim().toLowerCase()),
-    );
+    filter.addEventListener("input", () => {
+        // re-anchor: a stale scroll would immediately re-pick by line
+        scroller.scrollTop = 0;
+        apply(filter.value.trim().toLowerCase());
+    });
 
     panel.addEventListener("keydown", (e) => {
+        // by hand: the search input swallows esc (clearing itself) before
+        // the dialog's native cancel can see it
+        if (e.key === "Escape") {
+            e.preventDefault();
+            panel.close();
+            return;
+        }
         if (e.key !== "ArrowDown" && e.key !== "ArrowUp" && e.key !== "Enter")
             return;
         const list = visible();
@@ -284,12 +503,48 @@ const artifacts = await getCollection("artifacts");
     });
 
     // one selection, moved by keys or pointer alike; navigating within the
-    // page (e.g. /#artifact) should still close the panel
+    // page (e.g. /#artifact) should still close the panel. hover reads
+    // pointermove, not pointerenter: key-scrolling slides rows under a
+    // resting cursor, which fires enter and would yank the selection back
+    let px = 0;
+    let py = 0;
     for (const row of rows) {
-        row.addEventListener("pointerenter", () => select(row, false));
+        row.addEventListener("pointermove", (e) => {
+            if (e.pointerType !== "mouse") return;
+            if (e.clientX === px && e.clientY === py) return;
+            px = e.clientX;
+            py = e.clientY;
+            if (!row.classList.contains("active")) select(row, false);
+        });
         if (row.matches("a"))
             row.addEventListener("click", () => panel.close());
     }
+
+    // mobile scrub: the row passing beneath the cutout holds the selection;
+    // resting at the top hands it back to the asterism (or the first match
+    // while a query is live, echoing apply)
+    scroller.addEventListener(
+        "scroll",
+        () => {
+            if (!mobile.matches) return;
+            const seek = visible();
+            const rowH = seek[0]?.offsetHeight ?? 0;
+            // the rest zone runs one row deep — matching the padding
+            // above the first row — before the montage engages
+            if (scroller.scrollTop < Math.max(rowH, 4)) {
+                select(filter.value.trim() ? seek[0] : undefined, false);
+                return;
+            }
+            // half a row down: the pick hands off mid-vanish instead of
+            // clinging to a row until it's fully swallowed
+            const line = cutout.getBoundingClientRect().bottom + rowH / 2;
+            select(
+                seek.find((r) => r.getBoundingClientRect().bottom > line),
+                false,
+            );
+        },
+        { passive: true },
+    );
 
     fiat.addEventListener("click", () => {
         const next = effectiveTheme() === "dark" ? "light" : "dark";

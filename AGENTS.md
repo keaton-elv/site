@@ -54,8 +54,9 @@ everything is an artifact; `medium: writing` renders the essay itself — its
 body is plain markdown at `src/archive/writing/<id>.md`, no frontmatter,
 all metadata (`dek` included) in the index; anything else gets a
 vitrine — centered, no scroll, media sized per *images & video*.
-publishing an essay is just filing it — an entry under the essay's id 
-(`medium: writing`, optionally an `image` so arrangements can place it).
+every entry carries an `image` — it is required; a video's `image` is its
+still. publishing an essay is just filing it — an entry under the essay's
+id (`medium: writing`, with an `image` so arrangements can place it).
 an unfiled essay is just a draft. pages are rooms listed in the panel's pages 
 group as they're built. the home scanner-bed is art-directed w/ deliberate 
 spacing in `src/data/home.yaml`
@@ -81,9 +82,10 @@ spacing in `src/data/home.yaml`
 ## media
 
 artifacts arrive as-shot: native aspect ratios, never cropped, never framed.
-videos are silent loops; each carries a still whose dimensions size its box,
-and under reduced motion the still is all there is. anything longer than
-a loop lives on vimeo, embedded. serving rules: *images & video*.
+videos are silent loops; each carries a still (filed as its `image`) whose
+dimensions size its box, and under reduced motion the still is all there
+is. anything longer than a loop lives on vimeo, embedded. serving rules:
+*images & video*.
 
 # development
 

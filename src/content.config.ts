@@ -41,13 +41,12 @@ const artifacts = defineCollection({
       year: z.number(),
       medium: z.string(),
       dek: z.string().optional(),
-      image: image().optional(),
+      image: image(),
+      crop: z.number().min(0).max(1).optional(),
       alt: z.string().optional(),
       video: z.string().optional(),
-      still: image().optional(),
       device: z.string().optional(),
-    })
-    .refine((a) => !a.video || a.still, { message: 'videos need a still' }),
+    }),
 });
 
 const home = defineCollection({
