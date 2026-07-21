@@ -28,7 +28,6 @@ const cover = async (image: ImageMetadata) => {
     ).src;
 };
 
-// rooms; give one an image (and optional crop) to stock its thumb
 const pages: {
     id: string;
     href: string;
@@ -236,7 +235,6 @@ const thumbs = await Promise.all(
     .cutout > :global(*) {
         grid-area: 1 / 1;
     }
-    /* the void's asterism; a stocked cutout swallows it */
     .cutout > :global(svg) {
         width: 14rem;
         color: var(--ink);
@@ -250,11 +248,6 @@ const thumbs = await Promise.all(
         object-fit: cover;
         object-position: 50% var(--y, 50%);
     }
-    .cutout img[hidden] {
-        /* global img { display: block } outranks the ua [hidden] rule */
-        display: none;
-    }
-
     section {
         display: grid;
         grid-template-columns: 7rem 1fr;
@@ -262,8 +255,11 @@ const thumbs = await Promise.all(
     section + section {
         border-top: 1px solid var(--ink);
     }
-    section[hidden] {
-        /* the display: grid above outranks the ua [hidden] rule */
+    /* our display values (and global img { display: block }) outrank
+       the ua [hidden] rule */
+    section[hidden],
+    .row[hidden],
+    .cutout img[hidden] {
         display: none;
     }
 
@@ -304,9 +300,6 @@ const thumbs = await Promise.all(
     .row.active .meta {
         color: var(--bg);
     }
-    .row[hidden] {
-        display: none;
-    }
 
     .hint {
         display: flex;
@@ -331,7 +324,6 @@ const thumbs = await Promise.all(
     }
 
     @media (max-width: 45rem) {
-        /* a room of its own — the takeover replaces the floating card */
         #panel {
             width: 100vw;
             height: 100vh;
@@ -502,10 +494,10 @@ const thumbs = await Promise.all(
         select(list[next]);
     });
 
-    // one selection, moved by keys or pointer alike; navigating within the
-    // page (e.g. /#artifact) should still close the panel. hover reads
-    // pointermove, not pointerenter: key-scrolling slides rows under a
-    // resting cursor, which fires enter and would yank the selection back
+    // navigating within the page (e.g. /#artifact) must still close the
+    // panel. hover reads pointermove, not pointerenter: key-scrolling
+    // slides rows under a resting cursor, firing enter (and synthetic
+    // moves) at unchanged coordinates — only real travel may select
     let px = 0;
     let py = 0;
     for (const row of rows) {
