@@ -34,16 +34,3 @@
   year: 2026
   medium: digital media
   image: ../archive/design/tgiq-cover.avif
-
-- id: sf_cemetary
-  title: sf national cemetery
-  year: 2026
-  medium: photo
-  device: iPhone
-  image: ../archive/photos/sf_cemetary.avif
-
-- id: greenpoint
-  title: a tree in greenpoint
-  year: 2026
-  medium: photo
-  image: ../archive/photos/greenpoint.avif

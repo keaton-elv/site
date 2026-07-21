@@ -27,7 +27,7 @@ from the panel (stored in `localStorage.theme`).
 - **sans — pp neue montreal.** for special occasions: the 404's giant numerals, 
   essay anchor asides, the search box in the nav panel.
 
-see astro.config.mjs for the weights currently in use.
+see astro.config.mjs for the subset of weights in use
 
 ## style
 
@@ -43,27 +43,22 @@ blockquotes, ruling the panel's sections.
 
 ## invisible ui
 
-pages are only arranged content plus one quiet corner: glyph, top-right.
-the site has no center, and the panel this opens indexes everything.
-⌘K is the only shortcut the site will ever claim (esc also closes,
-unadvertised). the site is a non-brand; the glyph stands where a logo would.
+the site has no center. pages are arranged content plus the panel button.
+glyph is an asterism: "untitled", rendered from svg.
 
 ## the index
 
 `src/data/index.yaml` is the single source of truth: every artifact is
-one entry, and its id is its address — each artifact lives at /<id>, at the
-root, no section prefixes, one namespace. everything is an artifact; medium
-alone decides the display. `medium: writing` renders the essay itself — its
+an entry, and its id is its address — it lives at /<id>, at the root. 
+everything is an artifact; `medium: writing` renders the essay itself — its
 body is plain markdown at `src/archive/writing/<id>.md`, no frontmatter,
 all metadata (`dek` included) in the index; anything else gets a
 vitrine — centered, no scroll, media sized per *images & video*.
-publishing an essay is just filing
-it — an entry under the essay's id (`medium: writing`, optionally an
-`image` so arrangements can place it); an unfiled essay is just a draft.
-
-pages are rooms listed in the panel's pages group as they're built. 
-
-the home scanner-bed is art-directed w/ deliberate spacing in `src/data/home.yaml`
+publishing an essay is just filing it — an entry under the essay's id 
+(`medium: writing`, optionally an `image` so arrangements can place it).
+an unfiled essay is just a draft. pages are rooms listed in the panel's pages 
+group as they're built. the home scanner-bed is art-directed w/ deliberate 
+spacing in `src/data/home.yaml`
 
 ## the essay apparatus
 
@@ -141,7 +136,7 @@ option, so every `<Image>` and `getImage()` passes `format="avif"`.
 no variants — one mp4 for every device and dpr. resolution is whatever came
 out of resolve; past ~1.5× it is nominal anyway, since bitrate reads as
 sharpness more than pixels do. **duration** is the lever worth pulling, fps
-is not. anything longer than a loop goes to vimeo.
+is not. anything longer than a few seconds goes to vimeo.
 
 the poster takes no srcset, so it is sized once to 2× the widest box it
 appears in. under reduced motion `Layout.astro` pauses the video and the
