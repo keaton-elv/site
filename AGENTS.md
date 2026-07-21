@@ -38,13 +38,18 @@ but inversion means *selection*, so it is reserved for selected things:
 panel row. links do not invert; their underline fades on hover (120ms).
 buttons (the nav button, the §) shift brightness instead: `--dim` at rest,
 `--ink` on hover. the nav button inverts whatever passes beneath it. hairlines
-(`1px --line`) are the only ornament: under section notes, beside
-blockquotes, ruling the panel's sections.
+are the only ornament: `1px --line` under section notes and beside
+blockquotes; the panel rules itself in `1px --ink`.
 
 ## invisible ui
 
 the site has no center. pages are arranged content plus the panel button.
-glyph is an asterism: "untitled", rendered from svg.
+glyph is an asterism: "untitled", rendered from svg (`Asterism.astro`).
+
+the panel carries a 4:3 cutout previewing the selection's `image`: hover
+scrubs it on desktop; the phone takeover scrolls the rows under it, the
+passing row holding the selection. the asterism holds the void. the cutout
+is the one place an artifact is ever cropped — `crop` steers the window.
 
 ## the index
 
@@ -55,11 +60,13 @@ body is plain markdown at `src/archive/writing/<id>.md`, no frontmatter,
 all metadata (`dek` included) in the index; anything else gets a
 vitrine — centered, no scroll, media sized per *images & video*.
 every entry carries an `image` — it is required; a video's `image` is its
-still. publishing an essay is just filing it — an entry under the essay's
+still, and an optional `crop` (0 top … 1 bottom) steers its panel thumb.
+publishing an essay is just filing it — an entry under the essay's
 id (`medium: writing`, with an `image` so arrangements can place it).
 an unfiled essay is just a draft. pages are rooms listed in the panel's pages 
-group as they're built. the home scanner-bed is art-directed w/ deliberate 
-spacing in `src/data/home.yaml`
+group as they're built, their thumbs filed in `Panel.astro`'s pages list. 
+the home scanner-bed is art-directed w/ deliberate spacing in 
+`src/data/home.yaml`
 
 ## the essay apparatus
 
@@ -153,6 +160,7 @@ poster becomes the artifact — never economise there.
 | variant ladder | 640…3840 | `image.breakpoints`, astro.config |
 | vitrine sharpness | `CAP = 1.5` | Vitrine.astro |
 | home bed | 16 columns, max 1600px | `COLUMNS` / `BED`, index.astro |
+| panel cutout | 4:3, 30rem tall, served 2× | `THUMB_*`, Panel.astro |
 
 `CAP` is the vitrine's sharpness contract: an artifact renders at most
 1/CAP of its native pixels, so a 2× screen gets ≥1.5 device px per css px.
