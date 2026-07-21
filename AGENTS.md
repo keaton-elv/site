@@ -89,10 +89,10 @@ the home scanner-bed is art-directed w/ deliberate spacing in
 ## media
 
 artifacts arrive as-shot: native aspect ratios, never cropped, never framed.
-videos are silent loops; each carries a still (filed as its `image`) whose
-dimensions size its box, and under reduced motion the still is all there
-is. anything longer than a loop lives on vimeo, embedded. serving rules:
-*images & video*.
+videos are silent loops, rendered by `Loop.astro`; each carries a still
+(filed as its `image`) whose dimensions size its box, and under reduced
+motion the still is all there is. anything longer than a loop lives on
+vimeo, embedded. serving rules: *images & video*.
 
 # development
 
@@ -106,6 +106,21 @@ manage the background server with `pnpm dev stop`, `pnpm dev status`, and `pnpm 
 
 after editing `src/lib/essay-markdown.mjs`, restart the dev server — modules
 imported by the Astro config don't hot-reload. 
+
+## the shape of the repo
+
+- `src/data/index.yaml` — the index. `src/content.config.ts` loads it as
+  the `artifacts` collection, pulling each essay's body from
+  `src/archive/writing/`; `home` is the bed's arrangement.
+- `src/pages/[slug].astro` — every artifact's address; `medium` picks
+  `Essay.astro` or `Vitrine.astro` (`src/layouts/`). `Layout.astro`
+  wraps every page: head, fonts, theme, the reduced-motion video pause.
+- `src/pages/index.astro` — the scanner bed. `bookshelf.astro` — a room.
+- `src/components/` — `Panel.astro` (the index ui and its cutout),
+  `Loop.astro` (a silent loop and its poster), `Asterism.astro` (the
+  glyph).
+- `src/lib/essay-markdown.mjs` — authoring syntax. `scripts/assets.mjs`
+  — mastering.
 
 ## images & video
 
@@ -147,9 +162,10 @@ out of resolve; past ~1.5× it is nominal anyway, since bitrate reads as
 sharpness more than pixels do. **duration** is the lever worth pulling, fps
 is not. anything longer than a few seconds goes to vimeo.
 
-the poster takes no srcset, so it is sized once to 2× the widest box it
-appears in. under reduced motion `Layout.astro` pauses the video and the
-poster becomes the artifact — never economise there.
+the poster takes no srcset, so `Loop.astro`'s `width` prop sizes it once
+to 2× the widest box it appears in (omitted, it is served whole). under
+reduced motion `Layout.astro` pauses the video and the poster becomes
+the artifact — never economise there.
 
 ### the knobs
 

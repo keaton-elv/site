@@ -1,3 +1,8 @@
+// the index (src/data/index.yaml) becomes the `artifacts` collection.
+// a hand-rolled loader because each `medium: writing` entry pulls its
+// body from src/archive/writing/<id>.md — plain markdown, no frontmatter;
+// the index owns all metadata. `home` is the scanner bed's arrangement.
+
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { defineCollection } from 'astro:content';

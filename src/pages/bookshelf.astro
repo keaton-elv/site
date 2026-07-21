@@ -18,11 +18,15 @@ const scans = import.meta.glob<ImageMetadata>("../archive/bookshelf/*.avif", {
     eager: true,
     import: "default",
 });
-const shelves = order.map((name) => scans[`../archive/bookshelf/${name}.avif`]);
+const shelves = order.map((name) => {
+    const scan = scans[`../archive/bookshelf/${name}.avif`];
+    if (!scan) throw new Error(`bookshelf: no scan named "${name}"`);
+    return scan;
+});
 ---
 
 <Layout
-    title="bookshelf — Keaton Elvins"
+    title="bookshelf"
     description="some I enjoy, mostly read, all possessed (in one form or another)"
 >
     <main class="case">

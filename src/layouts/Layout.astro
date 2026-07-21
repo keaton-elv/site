@@ -9,7 +9,9 @@ interface Props {
     description?: string;
 }
 
-const { title = "Keaton Elvins", description } = Astro.props;
+// pages pass a bare name; the suffix is affixed once here
+const { title, description } = Astro.props;
+const full = title ? `${title} — Keaton Elvins` : "Keaton Elvins";
 ---
 
 <html lang="en">
@@ -17,9 +19,9 @@ const { title = "Keaton Elvins", description } = Astro.props;
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="generator" content={Astro.generator} />
-        <title>{title}</title>
+        <title>{full}</title>
         {description && <meta name="description" content={description} />}
-        <meta property="og:title" content={title} />
+        <meta property="og:title" content={full} />
         {
             description && (
                 <meta property="og:description" content={description} />

@@ -81,7 +81,8 @@ button {
   outline-offset: 2px;
 }
 
-/* the only persistent ui,  */
+/* the only persistent ui: the panel button, inverting whatever passes
+   beneath it */
 .glyph {
   position: fixed;
   top: 0;
@@ -102,12 +103,12 @@ button {
   color: #fff;
 }
 @media (max-width: 45rem) {
-    .glyph {
-        padding: 1.2rem 1rem;
-    }
-    .glyph svg {
-      height: 1.6rem;
-    }
+  .glyph {
+    padding: 1.2rem 1rem;
+  }
+  .glyph svg {
+    height: 1.6rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

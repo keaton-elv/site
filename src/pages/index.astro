@@ -1,7 +1,8 @@
 ---
 import { getCollection, getEntry } from "astro:content";
-import { getImage, Image } from "astro:assets";
+import { Image } from "astro:assets";
 import Layout from "../layouts/Layout.astro";
+import Loop from "../components/Loop.astro";
 
 // sizing rules: AGENTS.md → images & video. the bed's geometry lives here
 const COLUMNS = 16;
@@ -11,6 +12,7 @@ const GUTTER = "1.2rem"; // its padding once it stacks
 const slot = (w: number) => `calc(min(100vw, ${BED}px) / ${COLUMNS} * ${w})`;
 const poster = (w: number) => Math.round((BED / COLUMNS) * w * 2);
 
+// each placement in home.yaml points at an entry in the index
 const artifacts = await Promise.all(
     (await getCollection("home"))
         .sort((a, b) => a.data.at - b.data.at)
@@ -18,27 +20,7 @@ const artifacts = await Promise.all(
             const artifact = await getEntry("artifacts", id);
             if (!artifact)
                 throw new Error(`home.yaml: "${id}" is not in the index`);
-            const { data } = artifact;
-            return {
-                id,
-                place,
-                data,
-                still: data.video
-                    ? {
-                          url: (
-                              await getImage({
-                                  src: data.image,
-                                  width: Math.min(
-                                      data.image.width,
-                                      poster(place.w),
-                                  ),
-                                  format: "avif",
-                              })
-                          ).src,
-                          ratio: `${data.image.width} / ${data.image.height}`,
-                      }
-                    : undefined,
-            };
+            return { id, place, data: artifact.data };
         }),
 );
 ---
@@ -46,37 +28,31 @@ const artifacts = await Promise.all(
 <Layout>
     <main class="scanner-bed">
         {
-            artifacts.map(({ id, data: a, place, still }, i) => {
-                const media = a.video ? (
-                    <video
-                        src={a.video}
-                        poster={still?.url}
-                        style={still && `aspect-ratio: ${still.ratio}`}
-                        autoplay
-                        muted
-                        loop
-                        playsinline
-                        preload="metadata"
-                    />
-                ) : (
-                    <Image
-                        src={a.image}
-                        alt={a.alt ?? ""}
-                        sizes={`(max-width: 45rem) calc(100vw - ${GUTTER}), ${slot(place.w)}`}
-                        format="avif"
-                        loading={i === 0 ? "eager" : undefined}
-                        fetchpriority={i === 0 ? "high" : undefined}
-                    />
-                );
-                return (
-                    <figure
-                        class="artifact"
-                        style={`--w: ${place.w}; --x: ${place.x}; --mt: ${place.mt}`}
-                    >
-                        <a href={`/${id}`}>{media}</a>
-                    </figure>
-                );
-            })
+            artifacts.map(({ id, data: a, place }, i) => (
+                <figure
+                    class="artifact"
+                    style={`--w: ${place.w}; --x: ${place.x}; --mt: ${place.mt}`}
+                >
+                    <a href={`/${id}`}>
+                        {a.video ? (
+                            <Loop
+                                src={a.video}
+                                still={a.image}
+                                width={poster(place.w)}
+                            />
+                        ) : (
+                            <Image
+                                src={a.image}
+                                alt={a.alt ?? ""}
+                                sizes={`(max-width: 45rem) calc(100vw - ${GUTTER}), ${slot(place.w)}`}
+                                format="avif"
+                                loading={i === 0 ? "eager" : undefined}
+                                fetchpriority={i === 0 ? "high" : undefined}
+                            />
+                        )}
+                    </a>
+                </figure>
+            ))
         }
     </main>
 </Layout>

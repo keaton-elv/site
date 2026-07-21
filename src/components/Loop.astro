@@ -1,0 +1,33 @@
+---
+// a silent loop and its poster. `still` is the artifact's `image`; its
+// dimensions size the box. the poster takes no srcset, so `width` caps
+// it once at 2× the widest box it fills (omitted: served whole). under
+// reduced motion Layout.astro pauses playback and the poster is all
+// there is — serving rules: AGENTS.md → images & video.
+import type { ImageMetadata } from "astro";
+import { getImage } from "astro:assets";
+
+interface Props {
+    src: string;
+    still: ImageMetadata;
+    width?: number;
+}
+
+const { src, still, width = still.width, ...rest } = Astro.props;
+const poster = await getImage({
+    src: still,
+    width: Math.min(width, still.width),
+    format: "avif",
+});
+---
+
+<video
+    src={src}
+    poster={poster.src}
+    style={`aspect-ratio: ${still.width} / ${still.height}`}
+    autoplay
+    muted
+    loop
+    playsinline
+    preload="metadata"
+    {...rest}></video>

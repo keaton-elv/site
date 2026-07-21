@@ -18,6 +18,14 @@
   video: /media/sunbeams.mp4
   image: ../archive/stills/sunbeams.avif
 
+- id: aoraki
+  title: sunset at aoraki
+  year: 2025
+  medium: video
+  device: iPhone
+  video: /media/aoraki.mp4
+  image: ../archive/stills/aoraki.avif
+
 - id: temperance
   title: a tarot spread
   year: 2026
@@ -79,6 +87,14 @@
   medium: photo
   device: fujifilm x100v
   image: ../archive/photos/vestvågøy.avif
+
+- id: são-jorge
+  title: são jorge castle
+  year: 2023
+  medium: photo
+  device: fujifilm x100v
+  image: ../archive/photos/são-jorge.avif
+  crop: 0.9
 
 - id: bellas-artes
   title: palacio de bellas artes

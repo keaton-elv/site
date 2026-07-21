@@ -6,11 +6,12 @@ import Asterism from "./Asterism.astro";
 import home from "../archive/photos/home.avif";
 import bookshelf from "../archive/photos/bookshelf.avif";
 
-// the cutout in css px — mirrors --thumb-h below; served once at 2×.
-// thumbs cover the frame; an entry's optional crop steers the vertical
-// window (0 top … 1 bottom) when the image overflows it
-const THUMB_W = 640;
+// the cutout: 4:3, served once at 2×; its css height is injected onto
+// the dialog as --thumb-h. thumbs cover the frame; an entry's optional
+// crop steers the vertical window (0 top … 1 bottom) when the image
+// overflows it
 const THUMB_H = 480;
+const THUMB_W = (THUMB_H / 3) * 4;
 
 // serve the cover size uncropped — css places the window
 const cover = async (image: ImageMetadata) => {
@@ -28,40 +29,61 @@ const cover = async (image: ImageMetadata) => {
     ).src;
 };
 
+// pages are rooms; a page's row and thumb both derive from its id
 const pages: {
     id: string;
     href: string;
-    title: string;
-    meta: string;
-    image?: ImageMetadata;
+    image: ImageMetadata;
     crop?: number;
 }[] = [
-    { id: "home", href: "/", title: "home", meta: "/home", image: home },
-    {
-        id: "bookshelf",
-        href: "/bookshelf",
-        title: "bookshelf",
-        meta: "/bookshelf",
-        image: bookshelf,
-    },
+    { id: "home", href: "/", image: home },
+    { id: "bookshelf", href: "/bookshelf", image: bookshelf },
 ];
 
 const artifacts = await getCollection("artifacts");
 const thumbs = await Promise.all(
     [
-        ...pages.flatMap((p) =>
-            p.image ? [{ id: p.id, image: p.image, crop: p.crop }] : [],
-        ),
-        ...artifacts.map((a) => ({
-            id: a.id,
-            image: a.data.image,
-            crop: a.data.crop,
+        ...pages,
+        ...artifacts.map(({ id, data }) => ({
+            id,
+            image: data.image,
+            crop: data.crop,
         })),
-    ].map(async (t) => ({ id: t.id, crop: t.crop, src: await cover(t.image) })),
+    ].map(async ({ id, image, crop }) => ({
+        id,
+        crop,
+        src: await cover(image),
+    })),
 );
+
+// both groups share one row template; a row's thumb is keyed by its id
+const groups = [
+    {
+        label: "pages",
+        rows: pages.map((p) => ({
+            id: p.id,
+            href: p.href,
+            title: p.id,
+            meta: `/${p.id}`,
+        })),
+    },
+    {
+        label: "artifacts",
+        rows: artifacts.map((a) => ({
+            id: a.id,
+            href: `/${a.id}`,
+            title: a.data.title,
+            meta: `${a.data.medium}, ${a.data.year}`,
+        })),
+    },
+];
 ---
 
-<dialog id="panel" aria-label="index">
+<dialog
+    id="panel"
+    aria-label="index"
+    style={`--thumb-h: ${THUMB_H / 16}rem`}
+>
     <div class="frame">
         <input
             id="panel-filter"
@@ -82,42 +104,27 @@ const thumbs = await Promise.all(
         />
         <div class="stage">
             <nav id="panel-list" role="listbox" aria-label="everything">
-                <section>
-                    <p class="group">pages</p>
-                    <div class="rows">
-                        {
-                            pages.map((p) => (
-                                <a
-                                    class="row"
-                                    href={p.href}
-                                    data-thumb={p.image && p.id}
-                                >
-                                    <span>{p.title}</span>
-                                    <span class="meta">{p.meta}</span>
-                                </a>
-                            ))
-                        }
-                    </div>
-                </section>
-                <section>
-                    <p class="group">artifacts</p>
-                    <div class="rows">
-                        {
-                            artifacts.map((a) => (
-                                <a
-                                    class="row"
-                                    href={`/${a.id}`}
-                                    data-thumb={a.id}
-                                >
-                                    <span>{a.data.title}</span>
-                                    <span class="meta">
-                                        {a.data.medium}, {a.data.year}
-                                    </span>
-                                </a>
-                            ))
-                        }
-                    </div>
-                </section>
+                {
+                    groups.map((g) => (
+                        <section>
+                            <p class="group">{g.label}</p>
+                            <div class="rows">
+                                {g.rows.map((r) => (
+                                    <a
+                                        class="row"
+                                        id={`panel-opt-${r.id}`}
+                                        role="option"
+                                        href={r.href}
+                                        data-thumb={r.id}
+                                    >
+                                        <span>{r.title}</span>
+                                        <span class="meta">{r.meta}</span>
+                                    </a>
+                                ))}
+                            </div>
+                        </section>
+                    ))
+                }
             </nav>
             <figure class="cutout" aria-hidden="true">
                 <Asterism />
@@ -150,7 +157,6 @@ const thumbs = await Promise.all(
 
 <style>
     #panel {
-        --thumb-h: 30rem; /* mirrors THUMB_H up top */
         width: min(76rem, calc(100vw - 2rem));
         max-height: min(76vh, 50rem);
         margin: auto;
@@ -445,11 +451,6 @@ const thumbs = await Promise.all(
         if (e.persisted && panel.open) panel.close();
     });
 
-    rows.forEach((row, i) => {
-        row.id ||= `panel-opt-${i}`;
-        row.setAttribute("role", "option");
-    });
-
     const visible = () => rows.filter((r) => !r.hidden);
     const select = (row: HTMLElement | undefined, scroll = true) => {
         for (const r of rows) {
@@ -464,14 +465,9 @@ const thumbs = await Promise.all(
 
     function apply(q: string) {
         for (const row of rows)
-            row.hidden = !(row.textContent! + (row.dataset.keywords ?? ""))
-                .toLowerCase()
-                .includes(q);
-        for (const section of panel.querySelectorAll("section")) {
-            section.hidden = ![
-                ...section.querySelectorAll<HTMLElement>(".row"),
-            ].some((r) => !r.hidden);
-        }
+            row.hidden = !row.textContent!.toLowerCase().includes(q);
+        for (const section of panel.querySelectorAll("section"))
+            section.hidden = !section.querySelector(".row:not([hidden])");
         select(q ? visible()[0] : undefined);
     }
 
@@ -508,23 +504,23 @@ const thumbs = await Promise.all(
         select(list[next]);
     });
 
-    // navigating within the page (e.g. /#artifact) must still close the
-    // panel. hover reads pointermove, not pointerenter: key-scrolling
-    // slides rows under a resting cursor, firing enter (and synthetic
-    // moves) at unchanged coordinates — only real travel may select
+    // hover reads pointermove, not pointerenter: key-scrolling slides
+    // rows under a resting cursor, firing enter (and synthetic moves) at
+    // unchanged coordinates — only real travel may select
     let px = 0;
     let py = 0;
-    for (const row of rows) {
-        row.addEventListener("pointermove", (e) => {
-            if (e.pointerType !== "mouse") return;
-            if (e.clientX === px && e.clientY === py) return;
-            px = e.clientX;
-            py = e.clientY;
-            if (!row.classList.contains("active")) select(row, false);
-        });
-        if (row.matches("a"))
-            row.addEventListener("click", () => panel.close());
-    }
+    scroller.addEventListener("pointermove", (e) => {
+        if (e.pointerType !== "mouse") return;
+        if (e.clientX === px && e.clientY === py) return;
+        px = e.clientX;
+        py = e.clientY;
+        const row = (e.target as Element).closest<HTMLElement>(".row");
+        if (row && !row.classList.contains("active")) select(row, false);
+    });
+    // navigating within the page (e.g. /#artifact) must still close the panel
+    scroller.addEventListener("click", (e) => {
+        if ((e.target as Element).closest("a.row")) panel.close();
+    });
 
     // mobile scrub: the row passing beneath the cutout holds the selection;
     // resting at the top hands it back to the asterism (or the first match

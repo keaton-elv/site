@@ -1,7 +1,8 @@
 ---
 import type { CollectionEntry } from "astro:content";
-import { getImage, Image } from "astro:assets";
+import { Image } from "astro:assets";
 import Layout from "./Layout.astro";
+import Loop from "../components/Loop.astro";
 
 interface Props {
     entry: CollectionEntry<"artifacts">;
@@ -18,10 +19,9 @@ const RECORD = 11;
 const STRIP = 8;
 
 const native = a.image;
-const still = a.video
-    ? await getImage({ src: a.image, format: "avif" })
-    : undefined;
 
+// rem of chrome reserved around the media box, [horizontal, vertical],
+// in each arrangement of the record
 const stage = {
     wide: [2 * PAD + 2 * GAP + 2 * RECORD, 2 * PAD],
     tall: [2 * PAD, 2 * PAD + ROWGAP + STRIP],
@@ -49,21 +49,12 @@ const record = [
 ].filter(([, v]) => v) as [string, string][];
 ---
 
-<Layout title={`${a.title} — Keaton Elvins`}>
+<Layout title={a.title}>
     <main class="vitrine" style={vars}>
         <figure>
             {
                 a.video ? (
-                    <video
-                        src={a.video}
-                        poster={still?.src}
-                        style={`aspect-ratio: ${native.width} / ${native.height}`}
-                        autoplay
-                        muted
-                        loop
-                        playsinline
-                        preload="metadata"
-                    />
+                    <Loop src={a.video} still={native} />
                 ) : (
                     <Image
                         src={a.image}
