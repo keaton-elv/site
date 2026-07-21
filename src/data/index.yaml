@@ -33,7 +33,7 @@
   crop: 0.2
 
 - id: tgiq-cover
-  title: the garden in question cover
+  title: the garden in question
   year: 2026
   medium: digital
   image: ../archive/design/tgiq-cover.avif
@@ -79,3 +79,10 @@
   medium: photo
   device: fujifilm x100v
   image: ../archive/photos/vestvågøy.avif
+
+- id: bellas-artes
+  title: palacio de bellas artes
+  year: 2024
+  medium: photo
+  device: fujifilm x100v
+  image: ../archive/photos/bellas-artes.avif
