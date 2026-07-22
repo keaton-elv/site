@@ -39,12 +39,12 @@
   medium: digital
   image: ../archive/design/tgiq-cover.avif
 
-- id: Å
-  title: Å, moskenes
+- id: A
+  title: Å, moskenes
   year: 2022
   medium: photo
   device: fujifilm x100v
-  image: ../archive/photos/Å.avif
+  image: ../archive/photos/A.avif
 
 - id: blizzard
   title: norwegian winter
@@ -60,12 +60,12 @@
   device: fujifilm x100v
   image: ../archive/photos/dog-huts.avif
 
-- id: flåmsbana
-  title: view from the flåmsbana
+- id: flamsbana
+  title: view from the flåmsbana
   year: 2022
   medium: photo
   device: fujifilm x100v
-  image: ../archive/photos/flåmsbana.avif
+  image: ../archive/photos/flamsbana.avif
 
 - id: grindelwald
   title: wet in grindelwald
