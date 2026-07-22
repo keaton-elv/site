@@ -102,10 +102,18 @@
   device: fujifilm x100v
   image: ../archive/photos/bellas-artes.avif
 
-- id: santacruz
-  title: santa cruz
+- id: wilderranch
+  title: wilder ranch
   year: 2024
   medium: photo
   device: fujifilm x100v
-  image: ../archive/photos/santacruz.avif
+  image: ../archive/photos/wilderranch.avif
   crop: 0.6
+
+- id: rear-window
+  title: zephyr rear window
+  year: 2026
+  medium: video
+  device: iPhone
+  video: /media/rear-window.mp4
+  image: ../archive/stills/rear-window.avif
