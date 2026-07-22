@@ -3,13 +3,16 @@ import type { ImageMetadata } from "astro";
 import { getCollection } from "astro:content";
 import { getImage } from "astro:assets";
 import Asterism from "./Asterism.astro";
-import home from "../archive/photos/home.avif";
-import bookshelf from "../archive/photos/bookshelf.avif";
+import home from "../archive/scans/journal.avif";
+import bookshelf from "../archive/bookshelf/misc.avif";
 
 // the cutout: 4:3, served once at 2×; its css height is injected onto
 // the dialog as --thumb-h. thumbs cover the frame; an entry's optional
 // crop steers the vertical window (0 top … 1 bottom) when the image
-// overflows it
+// overflows it. a video entry layers its loop above its still, cued a
+// beat after selection so a passing scrub stays still; the loop only
+// surfaces once frames flow, and rewinds on deselect so it always
+// resumes from the frame the still holds — the handoff is invisible
 const THUMB_H = 480;
 const THUMB_W = (THUMB_H / 3) * 4;
 
@@ -35,6 +38,7 @@ const pages: {
     href: string;
     image: ImageMetadata;
     crop?: number;
+    video?: string;
 }[] = [
     { id: "home", href: "/", image: home },
     { id: "bookshelf", href: "/bookshelf", image: bookshelf },
@@ -48,10 +52,12 @@ const thumbs = await Promise.all(
             id,
             image: data.image,
             crop: data.crop,
+            video: data.video,
         })),
-    ].map(async ({ id, image, crop }) => ({
+    ].map(async ({ id, image, crop, video }) => ({
         id,
         crop,
+        video,
         src: await cover(image),
     })),
 );
@@ -79,11 +85,7 @@ const groups = [
 ];
 ---
 
-<dialog
-    id="panel"
-    aria-label="index"
-    style={`--thumb-h: ${THUMB_H / 16}rem`}
->
+<dialog id="panel" aria-label="index" style={`--thumb-h: ${THUMB_H / 16}rem`}>
     <div class="frame">
         <input
             id="panel-filter"
@@ -130,19 +132,37 @@ const groups = [
                 <Asterism />
                 {
                     thumbs.map((t) => (
-                        <img
-                            src={t.src}
-                            data-thumb-of={t.id}
-                            alt=""
-                            style={
-                                t.crop != null
-                                    ? `--y: ${t.crop * 100}%`
-                                    : undefined
-                            }
-                            loading="lazy"
-                            decoding="async"
-                            hidden
-                        />
+                        <>
+                            <img
+                                src={t.src}
+                                data-thumb-of={t.id}
+                                alt=""
+                                style={
+                                    t.crop != null
+                                        ? `--y: ${t.crop * 100}%`
+                                        : undefined
+                                }
+                                loading="lazy"
+                                decoding="async"
+                                hidden
+                            />
+                            {t.video && (
+                                <video
+                                    src={t.video}
+                                    data-thumb-of={t.id}
+                                    style={
+                                        t.crop != null
+                                            ? `--y: ${t.crop * 100}%`
+                                            : undefined
+                                    }
+                                    muted
+                                    loop
+                                    playsinline
+                                    preload="none"
+                                    hidden
+                                />
+                            )}
+                        </>
                     ))
                 }
             </figure>
@@ -251,14 +271,22 @@ const groups = [
         width: 14rem;
         color: var(--ink);
     }
-    .cutout:has(img:not([hidden])) > :global(svg) {
+    .cutout:has(:is(img, video):not([hidden])) > :global(svg) {
         display: none;
     }
-    .cutout img {
+    .cutout :is(img, video) {
         width: 100%;
         height: 100%;
         object-fit: cover;
         object-position: 50% var(--y, 50%);
+    }
+    /* the loop rides above its still and surfaces only once frames
+       flow — no poster gap can show through */
+    .cutout video {
+        opacity: 0;
+    }
+    .cutout video.rolling {
+        opacity: 1;
     }
     section {
         display: grid;
@@ -271,7 +299,7 @@ const groups = [
        the ua [hidden] rule */
     section[hidden],
     .row[hidden],
-    .cutout img[hidden] {
+    .cutout :is(img, video)[hidden] {
         display: none;
     }
 
@@ -403,7 +431,11 @@ const groups = [
     const filter = document.getElementById("panel-filter") as HTMLInputElement;
     const fiat = document.getElementById("panel-fiat") as HTMLElement;
     const rows = [...panel.querySelectorAll<HTMLElement>(".row")];
-    const thumbs = [...panel.querySelectorAll<HTMLImageElement>(".cutout img")];
+    const thumbs = [
+        ...panel.querySelectorAll<HTMLImageElement | HTMLVideoElement>(
+            ".cutout img, .cutout video",
+        ),
+    ];
     const scroller = document.getElementById("panel-list") as HTMLElement;
     const cutout = panel.querySelector(".cutout") as HTMLElement;
     const mobile = matchMedia("(max-width: 50rem)");
@@ -424,7 +456,8 @@ const groups = [
         panel.showModal();
         scroller.scrollTop = 0;
         // hidden lazy imgs never intersect, so stock the cutout by hand
-        for (const t of thumbs) t.loading = "eager";
+        for (const t of thumbs)
+            if (t instanceof HTMLImageElement) t.loading = "eager";
         // browsing-first on small screens: the keyboard waits for a tap
         if (mobile.matches) filter.blur();
     };
@@ -446,19 +479,40 @@ const groups = [
         if (e.target === panel) panel.close();
     });
 
+    // closing must silence a playing loop; the dialog only hides it
+    panel.addEventListener("close", () => select(undefined, false));
+
     // a page restored from the back/forward cache keeps its dom — close over it
     addEventListener("pageshow", (e) => {
         if (e.persisted && panel.open) panel.close();
     });
 
     const visible = () => rows.filter((r) => !r.hidden);
+    // a video thumb cues after a beat — a scrub passing over its row
+    // stays on the still and never fetches the loop. it surfaces only
+    // once frames flow, and rewinds on deselect, so it always takes
+    // over from the exact frame the still beneath it holds
+    const still = matchMedia("(prefers-reduced-motion: reduce)");
+    let cue: ReturnType<typeof setTimeout> | undefined;
+    for (const t of thumbs)
+        if (t instanceof HTMLVideoElement)
+            t.addEventListener("playing", () => t.classList.add("rolling"));
     const select = (row: HTMLElement | undefined, scroll = true) => {
         for (const r of rows) {
             r.classList.toggle("active", r === row);
             r.setAttribute("aria-selected", String(r === row));
         }
-        for (const t of thumbs)
+        clearTimeout(cue);
+        for (const t of thumbs) {
             t.hidden = t.dataset.thumbOf !== row?.dataset.thumb;
+            if (!(t instanceof HTMLVideoElement)) continue;
+            if (t.hidden) {
+                t.pause();
+                t.currentTime = 0;
+                t.classList.remove("rolling");
+            } else if (!still.matches)
+                cue = setTimeout(() => t.play().catch(() => {}), 300);
+        }
         filter.setAttribute("aria-activedescendant", row?.id ?? "");
         if (scroll) row?.scrollIntoView({ block: "nearest" });
     };

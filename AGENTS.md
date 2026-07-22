@@ -50,6 +50,8 @@ the panel carries a 4:3 cutout previewing the selection's `image`: hover
 scrubs it on desktop; the phone takeover scrolls the rows under it, the
 passing row holding the selection. the asterism holds the void. the cutout
 is the one place an artifact is ever cropped — `crop` steers the window.
+a video previews as the loop itself, cued a beat (300ms) after selection —
+a passing scrub stays on the still and never fetches the loop.
 
 ## the index
 

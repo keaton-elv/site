@@ -56,7 +56,10 @@ const full = title ? `${title} — Keaton Elvins` : "Keaton Elvins";
         <slot />
         <Panel />
         <script>
-            const videos = document.querySelectorAll("video");
+            // the panel cues its own loops — see Panel.astro's select()
+            const videos = document.querySelectorAll<HTMLVideoElement>(
+                "video:not(#panel video)",
+            );
             if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
                 for (const v of videos) {
                     v.removeAttribute("autoplay");

@@ -4,7 +4,7 @@
 # steers the panel thumb's vertical window when the image overflows it
 
 - id: chiffonade
-  title: Chiffonade
+  title: chiffonade
   year: 2026
   medium: writing
   dek: thin spirals
@@ -34,7 +34,7 @@
   image: ../archive/scans/temperance.avif
 
 - id: perpetuum
-  title: perpetuum
+  title: perpetuum @ TIAT
   year: 2026
   medium: object
   image: ../archive/work/perpetuum.avif
@@ -46,55 +46,61 @@
   medium: digital
   image: ../archive/design/tgiq-cover.avif
 
-- id: hotel-spinne
-  title: grindelwald at night
+- id: Å
+  title: Å, moskenes
   year: 2022
   medium: photo
   device: fujifilm x100v
-  image: ../archive/photos/hotel-spinne.avif
+  image: ../archive/photos/Å.avif
 
-- id: tromsø
-  title: dogsledding in tromsø
+- id: blizzard
+  title: norwegian winter
   year: 2022
   medium: photo
   device: fujifilm x100v
-  image: ../archive/photos/tromsø.avif
+  image: ../archive/photos/blizzard.avif
+
+- id: dog-huts
+  title: dog huts outside tromsø
+  year: 2022
+  medium: photo
+  device: fujifilm x100v
+  image: ../archive/photos/dog-huts.avif
+
+- id: flåmsbana
+  title: view from the flåmsbana
+  year: 2022
+  medium: photo
+  device: fujifilm x100v
+  image: ../archive/photos/flåmsbana.avif
+
+- id: grindelwald
+  title: wet in grindelwald
+  year: 2022
+  medium: photo
+  device: fujifilm x100v
+  image: ../archive/photos/grindelwald.avif
 
 - id: marienplatz
-  title: marienplatz
+  title: marienplatz between trains
   year: 2022
   medium: photo
   device: fujifilm x100v
   image: ../archive/photos/marienplatz.avif
 
 - id: pilatus
-  title: pilatus
+  title: mt. pilatus
   year: 2022
   medium: photo
   device: fujifilm x100v
   image: ../archive/photos/pilatus.avif
 
 - id: rome
-  title: rome
+  title: streets of rome
   year: 2022
   medium: photo
   device: fujifilm x100v
   image: ../archive/photos/rome.avif
-
-- id: vestvågøy
-  title: stuck in vestvågøy
-  year: 2022
-  medium: photo
-  device: fujifilm x100v
-  image: ../archive/photos/vestvågøy.avif
-
-- id: são-jorge
-  title: são jorge castle
-  year: 2023
-  medium: photo
-  device: fujifilm x100v
-  image: ../archive/photos/são-jorge.avif
-  crop: 0.9
 
 - id: bellas-artes
   title: palacio de bellas artes
@@ -102,3 +108,11 @@
   medium: photo
   device: fujifilm x100v
   image: ../archive/photos/bellas-artes.avif
+
+- id: santacruz
+  title: santa cruz
+  year: 2024
+  medium: photo
+  device: fujifilm x100v
+  image: ../archive/photos/santacruz.avif
+  crop: 0.6
