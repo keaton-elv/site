@@ -33,13 +33,6 @@
   device: CanoScan LiDE 400
   image: ../archive/scans/temperance.avif
 
-- id: perpetuum
-  title: perpetuum @ TIAT
-  year: 2026
-  medium: object
-  image: ../archive/work/perpetuum.avif
-  crop: 0.2
-
 - id: tgiq-cover
   title: the garden in question
   year: 2026

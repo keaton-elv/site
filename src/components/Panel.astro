@@ -209,7 +209,7 @@ const groups = [
         font-family: var(--font-sans);
         letter-spacing: -0.05em;
     }
-    @media (min-width: 50rem) {
+    @media (min-width: 62rem) {
         #panel-filter {
             font-size: 3rem;
             line-height: 1.1;
@@ -371,13 +371,14 @@ const groups = [
             display: none;
         }
     }
-    @media (min-width: 50rem) and (max-width: 78rem) {
+    @media (min-width: 62rem) and (max-width: 78rem) {
         .row .meta {
             display: none;
         }
     }
 
-    @media (max-width: 50rem) {
+    /* below this the 40rem cutout leaves the nav no room for a title */
+    @media (max-width: 62rem) {
         #panel {
             width: 100vw;
             height: 100vh;
@@ -438,7 +439,7 @@ const groups = [
     ];
     const scroller = document.getElementById("panel-list") as HTMLElement;
     const cutout = panel.querySelector(".cutout") as HTMLElement;
-    const mobile = matchMedia("(max-width: 50rem)");
+    const mobile = matchMedia("(max-width: 62rem)");
     const root = document.documentElement;
 
     const effectiveTheme = () =>
@@ -585,17 +586,17 @@ const groups = [
             if (!mobile.matches) return;
             const seek = visible();
             const rowH = seek[0]?.offsetHeight ?? 0;
-            // the rest zone runs one row deep — matching the padding
-            // above the first row — before the montage engages
-            if (scroller.scrollTop < Math.max(rowH, 4)) {
+            // the rest zone runs half a row deep — the other half is the
+            // first row's window before it, too, reaches the cutout
+            if (scroller.scrollTop < Math.max(rowH / 2, 4)) {
                 select(filter.value.trim() ? seek[0] : undefined, false);
                 return;
             }
-            // half a row down: the pick hands off mid-vanish instead of
-            // clinging to a row until it's fully swallowed
-            const line = cutout.getBoundingClientRect().bottom + rowH / 2;
+            // a row holds the selection only while fully clear of the
+            // cutout: the moment it touches, the pick hands off.            const line = cutout.getBoundingClientRect().bottom;
             select(
-                seek.find((r) => r.getBoundingClientRect().bottom > line),
+                seek.find((r) => r.getBoundingClientRect().top > line) ??
+                    seek.at(-1),
                 false,
             );
         },
