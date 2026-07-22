@@ -9,6 +9,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "deploy": "astro build && wrangler deploy",
     "astro": "astro",
     "assets": "node scripts/assets.mjs"
   },
@@ -21,6 +22,7 @@
     "@astrojs/check": "^0.9.9",
     "sharp": "^0.35.3",
     "typescript": "^6.0.3",
+    "wrangler": "^4.113.0",
     "yaml": "^2.9.0"
   }
 }
