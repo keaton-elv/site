@@ -88,7 +88,12 @@ const groups = [
 ];
 ---
 
-<dialog id="panel" aria-label="index" style={`--thumb-h: ${THUMB_H / 16}rem`}>
+<dialog
+    id="panel"
+    aria-label="index"
+    style={`--thumb-h: ${THUMB_H / 16}rem`}
+    transition:persist="panel"
+>
     <div class="frame">
         <input
             id="panel-filter"
@@ -431,6 +436,8 @@ const groups = [
 </style>
 
 <script>
+    import { warm } from "../lib/warm";
+
     const panel = document.getElementById("panel") as HTMLDialogElement;
     const filter = document.getElementById("panel-filter") as HTMLInputElement;
     const fiat = document.getElementById("panel-fiat") as HTMLElement;
@@ -486,6 +493,13 @@ const groups = [
     // closing must silence a playing loop; the dialog only hides it
     panel.addEventListener("close", () => select(undefined, false));
 
+    // the panel holds through a cut, lifting once the new page is
+    // beneath it (after-swap runs before paint — the old page never
+    // shows); this also catches back/forward under an open panel
+    document.addEventListener("astro:after-swap", () => {
+        if (panel.open) panel.close();
+    });
+
     // a page restored from the back/forward cache keeps its dom — close over it
     addEventListener("pageshow", (e) => {
         if (e.persisted && panel.open) panel.close();
@@ -498,6 +512,7 @@ const groups = [
     // over from the exact frame the still beneath it holds
     const still = matchMedia("(prefers-reduced-motion: reduce)");
     let cue: ReturnType<typeof setTimeout> | undefined;
+    let warmCue: ReturnType<typeof setTimeout> | undefined;
     for (const t of thumbs)
         if (t instanceof HTMLVideoElement)
             t.addEventListener("playing", () => t.classList.add("rolling"));
@@ -507,6 +522,11 @@ const groups = [
             r.setAttribute("aria-selected", String(r === row));
         }
         clearTimeout(cue);
+        // the selection's page warms on the loop's beat — a passing
+        // scrub never fetches
+        clearTimeout(warmCue);
+        const to = row?.getAttribute("href");
+        if (to) warmCue = setTimeout(() => warm(to), 300);
         for (const t of thumbs) {
             t.hidden = t.dataset.thumbOf !== row?.dataset.thumb;
             if (!(t instanceof HTMLVideoElement)) continue;
@@ -575,9 +595,11 @@ const groups = [
         const row = (e.target as Element).closest<HTMLElement>(".row");
         if (row && !row.classList.contains("active")) select(row, false);
     });
-    // navigating within the page (e.g. /#artifact) must still close the panel
+    // a same-page pick never swaps, so it must close here; a cut
+    // instead holds the panel until after-swap lifts it
     scroller.addEventListener("click", (e) => {
-        if ((e.target as Element).closest("a.row")) panel.close();
+        const a = (e.target as Element).closest<HTMLAnchorElement>("a.row");
+        if (a && a.pathname === location.pathname) panel.close();
     });
 
     // mobile scrub: the row passing beneath the cutout holds the selection;

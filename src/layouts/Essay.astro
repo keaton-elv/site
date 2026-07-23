@@ -39,7 +39,14 @@ const spreads = sections.map((section) => {
 });
 ---
 
-<Layout title={title} description={dek} prev={prev} next={next}>
+<Layout
+    title={title}
+    description={dek}
+    prev={prev}
+    next={next}
+    serif
+    sans={html.includes("<aside") ? [600] : []}
+>
     <main class="essay">
         <header class="spread">
             <h1>{title}</h1>

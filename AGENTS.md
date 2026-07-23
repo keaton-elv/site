@@ -27,7 +27,10 @@ from the panel (stored in `localStorage.theme`).
 - **sans — pp neue montreal.** for special occasions: the 404's giant numerals, 
   essay anchor asides, the search box in the nav panel.
 
-see astro.config.mjs for the subset of weights in use
+see astro.config.mjs for the subset of weights in use. each page
+preloads only the variants that paint on it — mono and the panel's
+sans 400 always, the rest via `Layout`'s `serif`/`sans` props (essays
+add their voice and, with asides, the semibold; the 404 its hairline)
 
 ## style
 
@@ -55,7 +58,18 @@ a passing scrub stays on the still and never fetches the loop.
 
 left/right arrows leaf through the index in filing order, essays included,
 wrapping at the ends — sequential access beside the panel's random access.
-prev/next are prefetched so each cut lands instantly.
+key repeat is ignored: safari rations history writes (~100 per 30s) and a
+held-key fly would jam the router mid-window.
+
+navigation stays on one document (ClientRouter, animate none — a cut is
+a cut, never a fade, and no browser loading bar runs). scripts bind
+once: the panel and nav button carry `transition:persist`, per-page work
+re-runs on `astro:page-load`, and the theme re-applies on
+`astro:after-swap` (a swap replaces `<html>`'s attributes). a cut lands
+painted: prev/next html is prefetched and `src/lib/warm.ts` cues each
+neighbor's hero — the exact variant this viewport would pick — while
+the panel warms its selection on the loop's beat and holds through a
+chosen cut, lifting only once the new page is beneath it.
 
 ## the index
 

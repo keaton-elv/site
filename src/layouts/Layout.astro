@@ -1,5 +1,6 @@
 ---
 import { Font } from "astro:assets";
+import { ClientRouter } from "astro:transitions";
 import "../styles/global.css";
 import Asterism from "../components/Asterism.astro";
 import Panel from "../components/Panel.astro";
@@ -9,18 +10,23 @@ interface Props {
     description?: string;
     prev?: string;
     next?: string;
+    serif?: boolean;
+    sans?: number[];
 }
 
 // pages pass a bare name; the suffix is affixed once here
-const { title, description, prev, next } = Astro.props;
+const { title, description, prev, next, serif = false, sans = [] } = Astro.props;
 const full = title ? `${title} — Keaton Elvins` : "Keaton Elvins";
 ---
 
-<html lang="en">
+{/* cuts stay on one document — see AGENTS.md → invisible ui */}
+<html lang="en" transition:animate="none">
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="generator" content={Astro.generator} />
+        {/* sparse pages with foreign titles trip chrome's translate */}
+        <meta name="google" content="notranslate" />
         <title>{full}</title>
         {description && <meta name="description" content={description} />}
         <meta property="og:title" content={full} />
@@ -43,26 +49,52 @@ const full = title ? `${title} — Keaton Elvins` : "Keaton Elvins";
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         {prev && <link rel="prefetch" href={prev} />}
         {next && <link rel="prefetch" href={next} />}
+        <ClientRouter />
+        {/* preload only what paints on this page — panel sans included */}
         <Font cssVariable="--font-mono" preload />
-        <Font cssVariable="--font-serif" />
-        <Font cssVariable="--font-sans" />
+        <Font cssVariable="--font-serif" preload={serif} />
+        <Font
+            cssVariable="--font-sans"
+            preload={[400, ...sans].map((weight) => ({ weight }))}
+        />
         <script is:inline>
-            const theme =
-                new URLSearchParams(location.search).get("theme") ??
-                localStorage.theme;
-            if (theme) document.documentElement.dataset.theme = theme;
+            // a swap replaces <html>'s attributes — re-apply before paint
+            const applyTheme = () => {
+                const theme =
+                    new URLSearchParams(location.search).get("theme") ??
+                    localStorage.theme;
+                if (theme) document.documentElement.dataset.theme = theme;
+            };
+            applyTheme();
+            document.addEventListener("astro:after-swap", applyTheme);
         </script>
     </head>
     <body data-prev={prev} data-next={next}>
-        <button class="glyph" data-panel-open aria-label="open the index">
+        {/* persisted (as is the panel): listeners bind once, swaps keep the node */}
+        <button
+            class="glyph"
+            data-panel-open
+            aria-label="open the index"
+            transition:persist="glyph">
             <Asterism />
         </button>
         <slot />
         <Panel />
         <script>
-            // arrow keys leaf through the index — see [slug].astro
+            import { navigate } from "astro:transitions/client";
+            import { warm } from "../lib/warm";
+
+            // warm the neighbors so a leafed-to cut paints from cache
+            document.addEventListener("astro:page-load", () => {
+                const { next, prev } = document.body.dataset;
+                if (next) warm(next);
+                if (prev) warm(prev);
+            });
+
+            // arrow keys leaf through the index — see [slug].astro;
+            // repeat ignored (a fly outruns safari's history ration)
             addEventListener("keydown", (e) => {
-                if (e.metaKey || e.ctrlKey || e.altKey) return;
+                if (e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
                 if (document.querySelector("dialog[open]")) return;
                 const to =
                     e.key === "ArrowLeft"
@@ -70,36 +102,40 @@ const full = title ? `${title} — Keaton Elvins` : "Keaton Elvins";
                         : e.key === "ArrowRight"
                           ? document.body.dataset.next
                           : undefined;
-                if (to) location.assign(to);
+                if (to) navigate(to);
             });
         </script>
         <script>
             // the panel cues its own loops — see Panel.astro's select()
-            const videos = document.querySelectorAll<HTMLVideoElement>(
-                "video:not(#panel video)",
-            );
-            if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
-                for (const v of videos) {
-                    v.removeAttribute("autoplay");
-                    v.pause();
+            const still = matchMedia("(prefers-reduced-motion: reduce)");
+            const observer = new IntersectionObserver((entries) => {
+                for (const { target, isIntersecting } of entries) {
+                    const v = target as HTMLVideoElement;
+                    if (isIntersecting) v.play().catch(() => {});
+                    else v.pause();
                 }
-            } else {
-                const observer = new IntersectionObserver((entries) => {
-                    for (const { target, isIntersecting } of entries) {
-                        const v = target as HTMLVideoElement;
-                        if (isIntersecting) v.play().catch(() => {});
-                        else v.pause();
-                    }
-                });
+            });
+            let videos: HTMLVideoElement[] = [];
+            document.addEventListener("astro:page-load", () => {
+                observer.disconnect();
+                videos = [
+                    ...document.querySelectorAll<HTMLVideoElement>(
+                        "video:not(#panel video)",
+                    ),
+                ];
+                for (const v of videos) {
+                    if (still.matches) {
+                        v.removeAttribute("autoplay");
+                        v.pause();
+                    } else observer.observe(v);
+                }
+            });
+            // a bfcache restore needs a fresh look to resume playback
+            addEventListener("pageshow", ({ persisted }) => {
+                if (!persisted || still.matches) return;
+                observer.disconnect();
                 for (const v of videos) observer.observe(v);
-                addEventListener("pageshow", ({ persisted }) => {
-                    if (!persisted) return;
-                    for (const v of videos) {
-                        observer.unobserve(v);
-                        observer.observe(v);
-                    }
-                });
-            }
+            });
         </script>
     </body>
 </html>
