@@ -9,7 +9,7 @@ interface Props {
 }
 
 const { entry, prev, next } = Astro.props;
-const { title, dek } = entry.data;
+const { title, dek, draft } = entry.data;
 
 // Alternate verso (text left, asides right) and recto (the mirror).
 // Each h2 also gets a § anchor. Figure images render at column width,
@@ -48,8 +48,9 @@ const spreads = sections.map((section) => {
     sans={html.includes("<aside") ? [600] : []}
 >
     <main class="essay">
-        <header class="spread">
+        <header class:list={["spread", draft && "draft"]}>
             <h1>{title}</h1>
+            {draft && <p class="unfiled">(unfiled)</p>}
         </header>
         {lede.trim() && <section class="spread" set:html={lede} />}
         {
@@ -64,6 +65,19 @@ const spreads = sections.map((section) => {
 </Layout>
 
 <style is:global>
+    /* a draft answers its index entry: unfiled rides beside the title */
+    .essay header.draft {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        column-gap: 1.5rem;
+    }
+    .essay .unfiled {
+        margin: 0;
+        font: 400 1.5rem/1.5 var(--font-mono);
+        color: var(--dim);
+    }
+
     .essay {
         --measure: 45rem;
         --aside-w: 15rem;
@@ -204,10 +218,6 @@ const spreads = sections.map((section) => {
         letter-spacing: 0.05em;
     }
 
-    .essay :is(figcaption, aside, footer.notes, sup) {
-        font-variant-ligatures: none;
-    }
-
     /* each section settles its own accounts */
     .essay footer.notes {
         margin-top: 3rem;
@@ -218,6 +228,11 @@ const spreads = sections.map((section) => {
     }
     .essay footer.notes p {
         margin: 0 0 0.35rem;
+    }
+
+    /* below every font: shorthand — the shorthand resets ligatures on */
+    .essay :is(figcaption, aside, footer.notes, sup, .unfiled) {
+        font-variant-ligatures: none;
     }
 
     @media (max-width: 73rem) {

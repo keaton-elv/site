@@ -66,10 +66,11 @@ a cut, never a fade, and no browser loading bar runs). scripts bind
 once: the panel and nav button carry `transition:persist`, per-page work
 re-runs on `astro:page-load`, and the theme re-applies on
 `astro:after-swap` (a swap replaces `<html>`'s attributes). a cut lands
-painted: prev/next html is prefetched and `src/lib/warm.ts` cues each
-neighbor's hero — the exact variant this viewport would pick — while
-the panel warms its selection on the loop's beat and holds through a
-chosen cut, lifting only once the new page is beneath it.
+painted: prev/next html is prefetched and `src/lib/warm.ts` cues what
+paints on each neighbor — a hero's exact variant for this viewport, an
+essay's voice — while the panel warms its selection on the loop's beat
+and holds through a chosen cut, lifting only once the new page is
+beneath it.
 
 ## the index
 
@@ -88,7 +89,10 @@ omits it and the loader derives its still
 (0 top … 1 bottom) steers its panel thumb.
 publishing an essay is just filing it — an entry under the essay's
 id (`medium: writing`, with an `image` so arrangements can place it).
-an unfiled essay is just a draft. pages are rooms listed in the panel's pages 
+an unfiled essay is just a draft; `draft: true` files one ahead — the
+index strikes its title and marks it `unfiled` in place of its year;
+the page answers with a mono `(unfiled)` beside the title.
+pages are rooms listed in the panel's pages 
 group as they're built, their thumbs filed in `Panel.astro`'s pages list. 
 the home scanner-bed is art-directed w/ deliberate spacing in 
 `src/data/home.yaml`
@@ -101,7 +105,7 @@ the home scanner-bed is art-directed w/ deliberate spacing in
   - **figcaption** — mono, under an image in the text column
   - **aside** — anchored on a phrase in the body, inverted there, answered
     uninverted at the aside's head, hanging in the margin
-  - **section notes** — daggers († ‡ ‖ ¶), restarting every h2, resolved
+  - **section notes** — daggers († ‡ § ‖ ¶), restarting every h2, resolved
     under a hairline at that section's end
 - headings stop at h2 — a title and its sections, nothing deeper. h2s carry
   an invisible § that appears on hover and anchors the section.

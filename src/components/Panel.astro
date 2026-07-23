@@ -74,6 +74,7 @@ const groups = [
             href: p.href,
             title: p.id,
             meta: `/${p.id}`,
+            draft: false,
         })),
     },
     {
@@ -82,7 +83,8 @@ const groups = [
             id: a.id,
             href: `/${a.id}`,
             title: a.data.title,
-            meta: `${a.data.medium}, ${a.data.year}`,
+            meta: `${a.data.medium}, ${a.data.draft ? "unfiled" : a.data.year}`,
+            draft: a.data.draft ?? false,
         })),
     },
 ];
@@ -121,7 +123,7 @@ const groups = [
                             <div class="rows">
                                 {g.rows.map((r) => (
                                     <a
-                                        class="row"
+                                        class:list={["row", r.draft && "draft"]}
                                         id={`panel-opt-${r.id}`}
                                         role="option"
                                         href={r.href}
@@ -340,6 +342,11 @@ const groups = [
         color: var(--dim);
         font-size: 0.8125rem;
         line-height: 1.85;
+    }
+    /* a draft is struck in the register */
+    .row.draft span:first-child {
+        text-decoration: line-through;
+        text-decoration-thickness: 1px;
     }
     .row.active {
         background: var(--ink);

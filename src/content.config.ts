@@ -53,6 +53,7 @@ const artifacts = defineCollection({
       title: z.string(),
       year: z.number(),
       medium: z.string(),
+      draft: z.boolean().optional(),
       dek: z.string().optional(),
       note: z.string().optional(),
       image: image(),
