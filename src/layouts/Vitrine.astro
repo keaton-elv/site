@@ -15,11 +15,11 @@ const a = entry.data;
 
 const CAP = 1.5;
 const PAD = 2;
-const PADM = 1; // the phone cedes side pad to the artifact
+const PADM = 0.5;
 const GAP = 1;
-const ROWGAP = 1;
+const ROWGAP = 0.5;
 const RECORD = 11;
-const STRIP = 8;
+const STRIP = 2;
 
 const native = a.image;
 
@@ -27,7 +27,7 @@ const native = a.image;
 // in each arrangement of the record
 const stage = {
     wide: [2 * PAD + 2 * GAP + 2 * RECORD, 2 * PAD],
-    tall: [2 * PADM, 2 * PAD + ROWGAP + STRIP],
+    tall: [0, 2 * PAD + ROWGAP + STRIP],
 };
 const box = ([w, h]: number[]) =>
     `min(${Math.round(native.width / CAP)}px, calc(100vw - ${w}rem), calc((100vh - ${h}rem) * ${(native.width / native.height).toFixed(4)}))`;
@@ -42,7 +42,7 @@ const vars = [
     `--gap: ${GAP}rem`,
     `--rowgap: ${ROWGAP}rem`,
     `--record: ${RECORD}rem`,
-    `--strip: ${STRIP}rem`,
+    `--tall: ${stage.tall[1]}rem`,
 ].join("; ");
 
 const meta = [a.device, a.year].filter(Boolean).join(", ");
@@ -78,37 +78,51 @@ const meta = [a.device, a.year].filter(Boolean).join(", ");
         display: grid;
         grid-template-rows: minmax(0, 1fr);
         height: 100svh;
-        padding: var(--pad) var(--padm);
+        padding: var(--pad) 0;
         overflow: clip;
     }
 
+    /* the phone: full-bleed artifact, the record a caption row under it */
     figure {
-        display: grid;
-        grid-template-rows: minmax(0, 1fr) var(--strip);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
         row-gap: var(--rowgap);
-        place-items: center;
+        min-height: 0;
         margin: 0;
     }
     .record {
-        justify-self: start;
-        align-self: start;
-        max-width: 100%;
+        flex: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        column-gap: 1rem;
+        width: 100%;
+        padding: 0 var(--padm);
     }
     @media (min-width: 45rem) {
         .vitrine {
             padding: var(--pad);
         }
         figure {
+            display: grid;
             grid-template-rows: minmax(0, 1fr);
             grid-template-columns: var(--record) minmax(0, 1fr) var(--record);
             column-gap: var(--gap);
+            place-items: center;
         }
         figure > :is(img, video) {
             grid-area: 1 / 2;
         }
         .record {
+            display: block;
             grid-area: 1 / 3;
+            justify-self: start;
             align-self: center;
+            width: auto;
+            max-width: 100%;
+            padding: 0;
         }
     }
     .record h1 {
@@ -117,19 +131,37 @@ const meta = [a.device, a.year].filter(Boolean).join(", ");
         color: var(--ink);
     }
     .record .meta {
-        margin: 0.1rem 0 0;
+        flex: none;
+        margin: 0;
         color: var(--dim);
+    }
+    @media (min-width: 45rem) {
+        .record .meta {
+            margin-top: 0.1rem;
+        }
     }
 
     .vitrine img {
         max-width: min(calc(var(--nw) / var(--cap)), 100%);
-        max-height: min(calc(var(--nh) / var(--cap)), 100%);
+        max-height: min(
+            calc(var(--nh) / var(--cap)),
+            calc(100svh - var(--tall))
+        );
         width: auto;
         height: auto;
     }
 
     .vitrine video {
         width: min(calc(var(--nw) / var(--cap)), 100%);
-        max-height: min(calc(var(--nh) / var(--cap)), 100%);
+        max-height: min(
+            calc(var(--nh) / var(--cap)),
+            calc(100svh - var(--tall))
+        );
+    }
+
+    @media (min-width: 45rem) {
+        .vitrine :is(img, video) {
+            max-height: min(calc(var(--nh) / var(--cap)), 100%);
+        }
     }
 </style>

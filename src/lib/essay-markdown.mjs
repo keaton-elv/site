@@ -7,12 +7,12 @@
  *
  *   :::notes           A section's own footnote block, kept at the end of
  *   † ...              its h2 section. Lines are labelled with daggers,
- *   :::                not numbers: † ‡ ‖ ¶
+ *   :::                not numbers: † ‡ § ‖ ¶
  *
  *   ![alt](src "cap")  An image with a quoted title becomes a <figure>
  *                      with the title as its <figcaption>.
  *
- *   † ‡ ‖ ¶            Dagger marks in body text are set superscript.
+ *   † ‡ § ‖ ¶            Dagger marks in body text are set superscript.
  *
  *   :sc[text]          Set in etbook's true small capitals.
  *
@@ -20,7 +20,7 @@
  *                      or bleed across the whole window.
  */
 
-const DAGGERS = /([†‡‖¶]+)/;
+const DAGGERS = /([†‡§‖¶]+)/;
 
 const sup = (value) => ({ type: 'emphasis', data: { hName: 'sup' }, children: [{ type: 'text', value }] });
 const mark = (value) => ({ type: 'emphasis', data: { hName: 'mark' }, children: [{ type: 'text', value }] });

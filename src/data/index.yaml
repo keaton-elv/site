@@ -1,5 +1,6 @@
 # global index of all artifacts
-# fields: id, title, year, medium, device, dek, note, image, video, alt, crop
+# fields: id, title, year, medium, device, dek, note, image, video, alt,
+#         crop, draft
 # an entry's id is its file's basename
 
 - title: chiffonade
@@ -7,6 +8,13 @@
   medium: writing
   dek: thin spirals
   image: ../archive/scans/chiffonade.avif
+
+- title: halftone
+  year: 2026
+  medium: writing
+  draft: true
+  dek: pocketbook covers
+  image: ../archive/design/halftone.avif
 
 - title: sunbeams on mt. tam
   year: 2026
