@@ -4,9 +4,11 @@ import Layout from "./Layout.astro";
 
 interface Props {
     entry: CollectionEntry<"artifacts">;
+    prev?: string;
+    next?: string;
 }
 
-const { entry } = Astro.props;
+const { entry, prev, next } = Astro.props;
 const { title, dek } = entry.data;
 
 // Alternate verso (text left, asides right) and recto (the mirror).
@@ -15,14 +17,14 @@ const { title, dek } = entry.data;
 const html = (await Astro.slots.render("default"))
     .replaceAll(
         /sizes="[^"]*"/g,
-        'sizes="(max-width: 68rem) calc(100vw - 2.5rem), 42rem"',
+        'sizes="(max-width: 73rem) calc(100vw - 2.5rem), 45rem"',
     )
     .replaceAll(/<div class="(wide|full)">[\s\S]*?<\/div>/g, (breakout, kind) =>
         breakout.replaceAll(
             /sizes="[^"]*"/g,
             kind === "full"
                 ? 'sizes="100vw"'
-                : 'sizes="(max-width: 68rem) calc(100vw - 2.5rem), 60.5rem"',
+                : 'sizes="(max-width: 73rem) calc(100vw - 2.5rem), 63.5rem"',
         ),
     );
 const [lede, ...sections] = html.split(/(?=<h2 )/);
@@ -37,7 +39,7 @@ const spreads = sections.map((section) => {
 });
 ---
 
-<Layout title={title} description={dek}>
+<Layout title={title} description={dek} prev={prev} next={next}>
     <main class="essay">
         <header class="spread">
             <h1>{title}</h1>
@@ -56,14 +58,14 @@ const spreads = sections.map((section) => {
 
 <style is:global>
     .essay {
-        --measure: 42rem;
+        --measure: 45rem;
         --aside-w: 15rem;
         --aside-gap: 3.5rem;
-        --pad-left: 6rem;
-        padding: 7rem 2rem 9rem var(--pad-left);
+        --pad-left: 8rem;
+        padding: 4rem 2rem 30svh var(--pad-left);
         font-family: var(--font-serif);
-        font-size: 1.3125rem;
-        line-height: 1.55;
+        font-size: 1.625rem;
+        line-height: 1.5;
         font-variant-ligatures: normal;
         overflow-x: clip;
     }
@@ -80,21 +82,25 @@ const spreads = sections.map((section) => {
         margin-top: 0;
     }
     .essay header.spread + .spread {
-        margin-top: 3rem;
+        margin-top: 1rem;
     }
 
     .essay h1 {
         margin: 0;
-        font-size: 6rem;
+        font-size: clamp(3.25rem, 13vw, 6rem);
         font-style: italic;
         font-weight: 400;
         line-height: 1.1;
     }
+    .essay h1::first-letter {
+        text-transform: uppercase;
+    }
     .essay h2 {
         margin: 0 0 1.75rem;
-        font-size: 1.5rem;
+        font-size: 2rem;
         font-weight: 400;
         line-height: 1.25;
+        text-wrap: balance;
         scroll-margin-top: 5rem;
     }
     .essay .sec {
@@ -119,6 +125,7 @@ const spreads = sections.map((section) => {
     .essay blockquote > p {
         text-align: justify;
         hyphens: auto;
+        hyphenate-limit-chars: 6 3 3;
     }
 
     /* asides hang in the margin, anchored to the paragraph they precede */
@@ -127,7 +134,7 @@ const spreads = sections.map((section) => {
         clear: right;
         width: var(--aside-w);
         margin-right: calc(-1 * (var(--aside-w) + var(--aside-gap)));
-        font: 400 0.75rem/1.55 var(--font-mono);
+        font: 400 0.8125rem/1.55 var(--font-mono);
     }
     .essay .recto aside {
         float: left;
@@ -142,7 +149,6 @@ const spreads = sections.map((section) => {
     .essay aside p {
         margin: 0.5rem 0 0;
         color: var(--dim);
-        text-indent: 0;
     }
 
     .essay figure {
@@ -150,7 +156,7 @@ const spreads = sections.map((section) => {
     }
     .essay figcaption {
         margin-top: 0.6rem;
-        font: 400 0.75rem/1.5 var(--font-mono);
+        font: 400 0.8125rem/1.5 var(--font-mono);
         color: var(--dim);
     }
     .essay figure img {
@@ -200,18 +206,17 @@ const spreads = sections.map((section) => {
         margin-top: 3rem;
         padding-top: 0.85rem;
         border-top: 1px solid var(--line);
-        font: 400 0.75rem/1.6 var(--font-mono);
+        font: 400 0.8125rem/1.6 var(--font-mono);
         color: var(--dim);
     }
     .essay footer.notes p {
         margin: 0 0 0.35rem;
-        text-indent: 0;
     }
 
-    @media (max-width: 68rem) {
+    @media (max-width: 73rem) {
         .essay {
             --pad-left: 1.25rem;
-            padding: 6rem 1.25rem 7rem var(--pad-left);
+            padding: 3.5rem 1.25rem 30svh var(--pad-left);
         }
         .essay .spread.recto {
             margin-left: 0;
@@ -229,6 +234,17 @@ const spreads = sections.map((section) => {
             margin: 1.75rem 0;
             padding-left: 1.25rem;
             border-left: 1px solid var(--ink);
+        }
+    }
+
+    @media (max-width: 45rem) {
+        .essay {
+            font-size: 1.25rem;
+            line-height: 1.45;
+        }
+        .essay .spread > p,
+        .essay blockquote > p {
+            text-align: left;
         }
     }
 </style>

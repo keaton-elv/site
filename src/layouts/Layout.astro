@@ -7,10 +7,12 @@ import Panel from "../components/Panel.astro";
 interface Props {
     title?: string;
     description?: string;
+    prev?: string;
+    next?: string;
 }
 
 // pages pass a bare name; the suffix is affixed once here
-const { title, description } = Astro.props;
+const { title, description, prev, next } = Astro.props;
 const full = title ? `${title} — Keaton Elvins` : "Keaton Elvins";
 ---
 
@@ -39,6 +41,8 @@ const full = title ? `${title} — Keaton Elvins` : "Keaton Elvins";
             content="#0f0f0f"
         />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        {prev && <link rel="prefetch" href={prev} />}
+        {next && <link rel="prefetch" href={next} />}
         <Font cssVariable="--font-mono" preload />
         <Font cssVariable="--font-serif" />
         <Font cssVariable="--font-sans" />
@@ -49,12 +53,26 @@ const full = title ? `${title} — Keaton Elvins` : "Keaton Elvins";
             if (theme) document.documentElement.dataset.theme = theme;
         </script>
     </head>
-    <body>
+    <body data-prev={prev} data-next={next}>
         <button class="glyph" data-panel-open aria-label="open the index">
             <Asterism />
         </button>
         <slot />
         <Panel />
+        <script>
+            // arrow keys leaf through the index — see [slug].astro
+            addEventListener("keydown", (e) => {
+                if (e.metaKey || e.ctrlKey || e.altKey) return;
+                if (document.querySelector("dialog[open]")) return;
+                const to =
+                    e.key === "ArrowLeft"
+                        ? document.body.dataset.prev
+                        : e.key === "ArrowRight"
+                          ? document.body.dataset.next
+                          : undefined;
+                if (to) location.assign(to);
+            });
+        </script>
         <script>
             // the panel cues its own loops — see Panel.astro's select()
             const videos = document.querySelectorAll<HTMLVideoElement>(

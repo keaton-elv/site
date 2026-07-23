@@ -593,7 +593,8 @@ const groups = [
                 return;
             }
             // a row holds the selection only while fully clear of the
-            // cutout: the moment it touches, the pick hands off.            const line = cutout.getBoundingClientRect().bottom;
+            // cutout: the moment it touches, the pick hands off.
+            const line = cutout.getBoundingClientRect().bottom;
             select(
                 seek.find((r) => r.getBoundingClientRect().top > line) ??
                     seek.at(-1),

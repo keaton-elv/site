@@ -6,13 +6,16 @@ import Loop from "../components/Loop.astro";
 
 interface Props {
     entry: CollectionEntry<"artifacts">;
+    prev?: string;
+    next?: string;
 }
 
-const { entry } = Astro.props;
+const { entry, prev, next } = Astro.props;
 const a = entry.data;
 
 const CAP = 1.5;
 const PAD = 2;
+const PADM = 1; // the phone cedes side pad to the artifact
 const GAP = 1;
 const ROWGAP = 1;
 const RECORD = 11;
@@ -24,7 +27,7 @@ const native = a.image;
 // in each arrangement of the record
 const stage = {
     wide: [2 * PAD + 2 * GAP + 2 * RECORD, 2 * PAD],
-    tall: [2 * PAD, 2 * PAD + ROWGAP + STRIP],
+    tall: [2 * PADM, 2 * PAD + ROWGAP + STRIP],
 };
 const box = ([w, h]: number[]) =>
     `min(${Math.round(native.width / CAP)}px, calc(100vw - ${w}rem), calc((100vh - ${h}rem) * ${(native.width / native.height).toFixed(4)}))`;
@@ -35,21 +38,17 @@ const vars = [
     `--nh: ${native.height}px`,
     `--cap: ${CAP}`,
     `--pad: ${PAD}rem`,
+    `--padm: ${PADM}rem`,
     `--gap: ${GAP}rem`,
     `--rowgap: ${ROWGAP}rem`,
     `--record: ${RECORD}rem`,
     `--strip: ${STRIP}rem`,
 ].join("; ");
 
-const record = [
-    ["medium", a.medium],
-    ["device", a.device],
-    ["year", String(a.year)],
-    ["dims", `${native.width} × ${native.height}`],
-].filter(([, v]) => v) as [string, string][];
+const meta = [a.device, a.year].filter(Boolean).join(", ");
 ---
 
-<Layout title={a.title}>
+<Layout title={a.title} prev={prev} next={next}>
     <main class="vitrine" style={vars}>
         <figure>
             {
@@ -68,17 +67,7 @@ const record = [
             }
             <figcaption class="record">
                 <h1>{a.title}</h1>
-                {a.dek && <p class="dek">{a.dek}</p>}
-                <dl>
-                    {
-                        record.map(([k, v]) => (
-                            <div class="field">
-                                <dt>{k}</dt>
-                                <dd>{v}</dd>
-                            </div>
-                        ))
-                    }
-                </dl>
+                <p class="meta">{meta}</p>
             </figcaption>
         </figure>
     </main>
@@ -89,7 +78,7 @@ const record = [
         display: grid;
         grid-template-rows: minmax(0, 1fr);
         height: 100svh;
-        padding: var(--pad);
+        padding: var(--pad) var(--padm);
         overflow: clip;
     }
 
@@ -106,6 +95,9 @@ const record = [
         max-width: 100%;
     }
     @media (min-width: 45rem) {
+        .vitrine {
+            padding: var(--pad);
+        }
         figure {
             grid-template-rows: minmax(0, 1fr);
             grid-template-columns: var(--record) minmax(0, 1fr) var(--record);
@@ -124,28 +116,9 @@ const record = [
         font: 400 0.8125rem/1.5 var(--font-mono);
         color: var(--ink);
     }
-    .record .dek {
+    .record .meta {
         margin: 0.1rem 0 0;
         color: var(--dim);
-    }
-    .record dl {
-        display: grid;
-        grid-template-columns: max-content auto;
-        gap: 0.1rem 1rem;
-        margin: 0.6rem 0 0;
-        font-size: 0.75rem;
-    }
-    .record .field {
-        display: contents;
-    }
-    .record dt {
-        grid-column: 1;
-        color: var(--dim);
-    }
-    .record dd {
-        grid-column: 2;
-        margin: 0;
-        color: var(--ink);
     }
 
     .vitrine img {

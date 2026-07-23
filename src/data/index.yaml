@@ -1,119 +1,93 @@
 # global index of all artifacts
-# fields: id, title, year, medium, device, dek, image, video, alt, crop
-# image is required — for videos it is the still. crop (0 top … 1 bottom)
-# steers the panel thumb's vertical window when the image overflows it
+# fields: id, title, year, medium, device, dek, note, image, video, alt, crop
+# an entry's id is its file's basename
 
-- id: chiffonade
-  title: chiffonade
+- title: chiffonade
   year: 2026
   medium: writing
   dek: thin spirals
-  image: ../archive/scans/april.avif
+  image: ../archive/scans/chiffonade.avif
 
-- id: sunbeams
-  title: sunbeams on mt. tam
+- title: sunbeams on mt. tam
   year: 2026
   medium: video
   device: iPhone
   video: /media/sunbeams.mp4
-  image: ../archive/stills/sunbeams.avif
 
-- id: aoraki
-  title: sunset at aoraki
+- title: dusk at aoraki
   year: 2025
   medium: video
   device: iPhone
-  video: /media/aoraki.mp4
-  image: ../archive/stills/aoraki.avif
+  video: /media/dusk-at-aoraki.mp4
 
-- id: temperance
-  title: a tarot spread
+- title: temperance
   year: 2026
   medium: scan
   device: CanoScan LiDE 400
   image: ../archive/scans/temperance.avif
 
-- id: tgiq-cover
-  title: the garden in question
+- title: the garden in question
   year: 2026
   medium: digital
-  image: ../archive/design/tgiq-cover.avif
+  image: ../archive/design/the-garden-cover.avif
 
-- id: A
-  title: Å, moskenes
+- title: Å, moskenes
   year: 2022
   medium: photo
-  device: fujifilm x100v
+  device: x100v
   image: ../archive/photos/A.avif
 
-- id: blizzard
-  title: norwegian winter
+- title: dog huts outside tromsø
   year: 2022
   medium: photo
-  device: fujifilm x100v
-  image: ../archive/photos/blizzard.avif
-
-- id: dog-huts
-  title: dog huts outside tromsø
-  year: 2022
-  medium: photo
-  device: fujifilm x100v
+  device: x100v
   image: ../archive/photos/dog-huts.avif
 
-- id: flamsbana
-  title: view from the flåmsbana
+- title: view from the flåmsbana
   year: 2022
   medium: photo
-  device: fujifilm x100v
-  image: ../archive/photos/flamsbana.avif
+  device: x100v
+  image: ../archive/photos/view-from-flamsbana.avif
 
-- id: grindelwald
-  title: wet in grindelwald
+- title: wet in grindelwald
   year: 2022
   medium: photo
-  device: fujifilm x100v
-  image: ../archive/photos/grindelwald.avif
+  device: x100v
+  image: ../archive/photos/wet-in-grindelwald.avif
 
-- id: marienplatz
-  title: marienplatz between trains
+- title: marienplatz u-bahn
   year: 2022
   medium: photo
-  device: fujifilm x100v
+  device: x100v
   image: ../archive/photos/marienplatz.avif
 
-- id: pilatus
-  title: mt. pilatus
+- title: mt. pilatus
   year: 2022
   medium: photo
-  device: fujifilm x100v
-  image: ../archive/photos/pilatus.avif
+  device: x100v
+  image: ../archive/photos/mt-pilatus.avif
 
-- id: rome
-  title: streets of rome
+- title: roman vicolo
   year: 2022
   medium: photo
-  device: fujifilm x100v
-  image: ../archive/photos/rome.avif
+  device: x100v
+  image: ../archive/photos/roman-vicolo.avif
 
-- id: bellas-artes
-  title: palacio de bellas artes
+- title: palacio de bellas artes
   year: 2024
   medium: photo
-  device: fujifilm x100v
-  image: ../archive/photos/bellas-artes.avif
+  device: x100v
+  image: ../archive/photos/palacio-bellas-artes.avif
 
-- id: wilderranch
-  title: wilder ranch
+- title: wilder ranch
   year: 2024
   medium: photo
-  device: fujifilm x100v
-  image: ../archive/photos/wilderranch.avif
+  device: x100v
+  image: ../archive/photos/wilder-ranch.avif
   crop: 0.6
 
-- id: rear-window
-  title: zephyr rear window
+- title: zephyr rear window
   year: 2026
   medium: video
   device: iPhone
-  video: /media/rear-window.mp4
-  image: ../archive/stills/rear-window.avif
+  video: /media/zephyr-rear-window.mp4

@@ -5,22 +5,32 @@
   x: 2
   mt: 3
 
-- id: aoraki
+- id: dusk-at-aoraki
   w: 10
   x: 7
   mt: 3
 
-- id: grindelwald
+- id: wet-in-grindelwald
   w: 8
   x: 1
   mt: 4
 
-- id: bellas-artes
+- id: palacio-bellas-artes
   w: 8
   x: 9
   mt: 4
 
-- id: rear-window
+- id: zephyr-rear-window
   w: 10
   x: 4
   mt: 4
+
+- id: wilder-ranch
+  w: 5
+  x: 2
+  mt: 10
+
+- id: dog-huts
+  w: 8
+  x: 8
+  mt: 6

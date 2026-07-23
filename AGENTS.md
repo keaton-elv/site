@@ -53,16 +53,25 @@ is the one place an artifact is ever cropped — `crop` steers the window.
 a video previews as the loop itself, cued a beat (300ms) after selection —
 a passing scrub stays on the still and never fetches the loop.
 
+left/right arrows leaf through the index in filing order, essays included,
+wrapping at the ends — sequential access beside the panel's random access.
+prev/next are prefetched so each cut lands instantly.
+
 ## the index
 
 `src/data/index.yaml` is the single source of truth: every artifact is
-an entry, and its id is its address — it lives at /<id>, at the root. 
+an entry, and its id is its address — it lives at /<id>, at the root.
+the id derives from the entry's file name — an essay's image shares it,
+its body at archive/writing/<id>.md — an explicit id filed only to pin
+an address to a renamed file. 
 everything is an artifact; `medium: writing` renders the essay itself — its
 body is plain markdown at `src/archive/writing/<id>.md`, no frontmatter,
 all metadata (`dek` included) in the index; anything else gets a
 vitrine — centered, no scroll, media sized per *images & video*.
-every entry carries an `image` — it is required; a video's `image` is its
-still, and an optional `crop` (0 top … 1 bottom) steers its panel thumb.
+every entry carries an `image` — it is required, though a video entry
+omits it and the loader derives its still
+(`archive/stills/<video name>.avif`) — and an optional `crop`
+(0 top … 1 bottom) steers its panel thumb.
 publishing an essay is just filing it — an entry under the essay's
 id (`medium: writing`, with an `image` so arrangements can place it).
 an unfiled essay is just a draft. pages are rooms listed in the panel's pages 
@@ -92,7 +101,7 @@ the home scanner-bed is art-directed w/ deliberate spacing in
 
 artifacts arrive as-shot: native aspect ratios, never cropped, never framed.
 videos are silent loops, rendered by `Loop.astro`; each carries a still
-(filed as its `image`) whose dimensions size its box, and under reduced
+(derived as its `image`) whose dimensions size its box, and under reduced
 motion the still is all there is. anything longer than a loop lives on
 vimeo, embedded. serving rules: *images & video*.
 
