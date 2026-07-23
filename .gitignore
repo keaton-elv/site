@@ -2,6 +2,9 @@
 dist/
 # generated types
 .astro/
+# astro cache — assets/ (encoded variants) is committed so builds never encode
+.astro-cache/*
+!.astro-cache/assets
 # wrangler local state
 .wrangler/
 

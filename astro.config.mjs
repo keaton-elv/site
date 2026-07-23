@@ -7,6 +7,9 @@ import { essayMarkdown } from './src/lib/essay-markdown.mjs';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://keatonelvins.com',
+  // in the repo so assets/ (the encoded-variant cache) can be committed —
+  // cloudflare's box would spend ~30min encoding cold and time out
+  cacheDir: './.astro-cache',
   integrations: [sitemap()],
   prefetch: {
     prefetchAll: true,

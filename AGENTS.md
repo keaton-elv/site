@@ -150,6 +150,16 @@ so builds never need ffmpeg.
 export generously — a master is a ceiling, not a payload. astro re-encodes
 per slot, so its size costs repo bytes only.
 
+### the variant cache
+
+after new media lands, `pnpm build` once — astro bakes every derived
+variant into `.astro-cache/assets`, committed like the masters: cloudflare
+never encodes (cold, its box takes ~30 minutes and the build times out;
+warm, seconds). the rest of `.astro-cache` stays ignored. a forgotten
+build isn't fatal — cloudflare encodes just the missing entries. stale
+entries linger when params shift (the ladder, `CAP`, a re-master) —
+delete the dir, rebuild, commit the fresh set.
+
 ### images
 
 astro derives the variants, the browser picks one. two things have to hold:
@@ -157,6 +167,10 @@ astro derives the variants, the browser picks one. two things have to hold:
 - **the ladder.** astro's `constrained` breakpoints stop at 2560 and skip
   960/1920, so a 4k master would be unreachable. `image.breakpoints` in
   astro.config widens and fills it.
+- **`layout: "none"` on single files.** the config's `constrained` layout
+  ladders every `<Image>` *and* `getImage()` — a call meant to serve one
+  file (the panel cutout, a loop's poster) must opt out, or it encodes a
+  whole srcset nothing cites.
 - **`sizes`.** must restate that page's real css box, *including limits
   that aren't widths* — the vitrine is bound by window height (`100svh`
   less `--chrome`), home by the 16-column bed that stops growing at

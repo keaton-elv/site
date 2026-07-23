@@ -18,6 +18,7 @@ const poster = await getImage({
     src: still,
     width: Math.min(width, still.width),
     format: "avif",
+    layout: "none", // one file — the config's layout would ladder it
 });
 ---
 

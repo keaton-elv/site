@@ -16,7 +16,9 @@ import bookshelf from "../archive/bookshelf/misc.avif";
 const THUMB_H = 480;
 const THUMB_W = (THUMB_H / 3) * 4;
 
-// serve the cover size uncropped — css places the window
+// serve the cover size uncropped — css places the window. layout none:
+// the config's constrained layout would ladder every thumb into a srcset
+// no <img> here ever cites
 const cover = async (image: ImageMetadata) => {
     const s = Math.max(
         (THUMB_W * 2) / image.width,
@@ -28,6 +30,7 @@ const cover = async (image: ImageMetadata) => {
             width: Math.round(image.width * s),
             height: Math.round(image.height * s),
             format: "avif",
+            layout: "none",
         })
     ).src;
 };
