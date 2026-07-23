@@ -7,7 +7,6 @@ import Loop from "../components/Loop.astro";
 // sizing rules: AGENTS.md → images & video. the bed's geometry lives here
 const COLUMNS = 16;
 const BED = 1600; // .scanner-bed max-width, 100rem
-const GUTTER = "1.2rem"; // its padding once it stacks
 
 const slot = (w: number) => `calc(min(100vw, ${BED}px) / ${COLUMNS} * ${w})`;
 const poster = (w: number) => Math.round((BED / COLUMNS) * w * 2);
@@ -44,7 +43,7 @@ const artifacts = await Promise.all(
                             <Image
                                 src={a.image}
                                 alt={a.alt ?? ""}
-                                sizes={`(max-width: 45rem) calc(100vw - ${GUTTER}), ${slot(place.w)}`}
+                                sizes={`(max-width: 45rem) 100vw, ${slot(place.w)}`}
                                 format="avif"
                                 loading={i === 0 ? "eager" : undefined}
                                 fetchpriority={i === 0 ? "high" : undefined}
@@ -82,10 +81,10 @@ const artifacts = await Promise.all(
     @media (max-width: 45rem) {
         .scanner-bed {
             display: block;
-            padding: 5rem 0.6rem 6rem;
+            padding: 4rem 0 8rem;
         }
         .artifact {
-            margin: 2rem 0 0;
+            margin: 1rem 0 0;
         }
         .artifact:first-child {
             margin-top: 0;

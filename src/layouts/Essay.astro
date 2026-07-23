@@ -17,14 +17,14 @@ const { title, dek, draft } = entry.data;
 const html = (await Astro.slots.render("default"))
     .replaceAll(
         /sizes="[^"]*"/g,
-        'sizes="(max-width: 73rem) calc(100vw - 2.5rem), 45rem"',
+        'sizes="(max-width: 45rem) 100vw, (max-width: 73rem) calc(100vw - 2.5rem), 45rem"',
     )
     .replaceAll(/<div class="(wide|full)">[\s\S]*?<\/div>/g, (breakout, kind) =>
         breakout.replaceAll(
             /sizes="[^"]*"/g,
             kind === "full"
                 ? 'sizes="100vw"'
-                : 'sizes="(max-width: 73rem) calc(100vw - 2.5rem), 63.5rem"',
+                : 'sizes="(max-width: 45rem) 100vw, (max-width: 73rem) calc(100vw - 2.5rem), 63.5rem"',
         ),
     );
 const [lede, ...sections] = html.split(/(?=<h2 )/);
@@ -267,6 +267,14 @@ const spreads = sections.map((section) => {
         .essay .spread > p,
         .essay blockquote > p {
             text-align: left;
+        }
+        .essay .spread > figure,
+        .essay .spread > .wide,
+        .essay .spread.recto > .wide {
+            margin-inline: calc(-1 * var(--pad-left));
+        }
+        .essay figcaption {
+            padding-inline: var(--pad-left);
         }
     }
 </style>
