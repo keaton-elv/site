@@ -1,3 +1,0 @@
-- halftone essay w/ spreads + figures + interactive widget
-- /me page
-- /now page

@@ -3,8 +3,9 @@ import type { ImageMetadata } from "astro";
 import { getCollection } from "astro:content";
 import { getImage } from "astro:assets";
 import Asterism from "./Asterism.astro";
-import home from "../archive/scans/journal.avif";
+import home from "../archive/photos/desk.avif";
 import bookshelf from "../archive/bookshelf/misc.avif";
+import me from "../archive/scans/journal.avif";
 
 // the cutout: 4:3, served once at 2×; its css height is injected onto
 // the dialog as --thumb-h. thumbs cover the frame; an entry's optional
@@ -45,6 +46,7 @@ const pages: {
 }[] = [
     { id: "home", href: "/", image: home },
     { id: "bookshelf", href: "/bookshelf", image: bookshelf },
+    { id: "me", href: "/me", image: me },
 ];
 
 const artifacts = await getCollection("artifacts");

@@ -3,12 +3,12 @@
 - id: sunbeams
   w: 10
   x: 2
-  mt: 3
+  mt: 2
 
 - id: dusk-at-aoraki
   w: 10
   x: 7
-  mt: 3
+  mt: 4
 
 - id: wet-in-grindelwald
   w: 8

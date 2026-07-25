@@ -15,7 +15,14 @@ interface Props {
 }
 
 // pages pass a bare name; the suffix is affixed once here
-const { title, description, prev, next, serif = false, sans = [] } = Astro.props;
+const {
+    title,
+    description,
+    prev,
+    next,
+    serif = false,
+    sans = [],
+} = Astro.props;
 const full = title ? `${title} — Keaton Elvins` : "Keaton Elvins";
 ---
 
@@ -47,6 +54,19 @@ const full = title ? `${title} — Keaton Elvins` : "Keaton Elvins";
             content="#0f0f0f"
         />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link
+            rel="icon"
+            href="/favicon-96.png"
+            type="image/png"
+            sizes="96x96"
+        />
+        <link
+            rel="icon"
+            href="/favicon-32.png"
+            type="image/png"
+            sizes="32x32"
+        />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         {prev && <link rel="prefetch" href={prev} />}
         {next && <link rel="prefetch" href={next} />}
         <ClientRouter />
@@ -70,12 +90,15 @@ const full = title ? `${title} — Keaton Elvins` : "Keaton Elvins";
         </script>
     </head>
     <body data-prev={prev} data-next={next}>
-        {/* persisted (as is the panel): listeners bind once, swaps keep the node */}
+        {
+            /* persisted (as is the panel): listeners bind once, swaps keep the node */
+        }
         <button
             class="glyph"
             data-panel-open
             aria-label="open the index"
-            transition:persist="glyph">
+            transition:persist="glyph"
+        >
             <Asterism />
         </button>
         <slot />

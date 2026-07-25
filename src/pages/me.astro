@@ -1,0 +1,98 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="me" description="a few things you ought to know">
+    <main class="me">
+        <div>
+            <p>Keaton is an artist and researcher based in SF</p>
+            <p>
+                He likes to read and splash around in the bay and get all
+                shivery
+            </p>
+            <p class="write">
+                Write to him at <button
+                    class="email"
+                    type="button"
+                    title="copy to clipboard"
+                    aria-live="polite"></button>
+            </p>
+        </div>
+    </main>
+</Layout>
+
+<style>
+    .me {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-height: 100vh;
+        min-height: 100svh;
+        padding: 2rem 1.25rem;
+    }
+
+    .me > div {
+        width: 100%;
+        max-width: 36rem;
+        margin-inline: auto;
+        font-family: var(--font-sans);
+        font-size: 1.125rem;
+        line-height: 1.45;
+    }
+
+    p {
+        margin: 0 0 0.75em;
+    }
+
+    .write {
+        margin: 2.5rem 0 0;
+    }
+
+    /* the address keeps the registrar's voice inside the sans line */
+    .email {
+        font-family: var(--font-mono);
+        font-size: 0.8125rem;
+        color: var(--dim);
+        transition: color 120ms ease;
+    }
+    .email:hover {
+        color: var(--ink);
+    }
+    .email.copied {
+        transition: none;
+        background: var(--ink);
+        color: var(--bg);
+    }
+
+    @media (max-width: 45rem) {
+        .me > div {
+            font-size: 1rem;
+        }
+    }
+</style>
+
+<script>
+    // assembled here so the address never appears in the built html,
+    // where harvesters read; a click copies instead of opening a mail app
+    document.addEventListener("astro:page-load", () => {
+        const email = document.querySelector<HTMLButtonElement>(".email");
+        if (!email) return;
+        const addr = ["keatonelvins", "gmail.com"].join("@");
+        email.textContent = addr;
+        // hold the address's width in ch (mono: 1ch per glyph) so the
+        // swap doesn't reflow the line; the word centers in it
+        email.style.minWidth = `${addr.length}ch`;
+        let hold: ReturnType<typeof setTimeout>;
+        email.addEventListener("click", () => {
+            navigator.clipboard.writeText(addr).then(() => {
+                email.classList.add("copied");
+                email.textContent = "copied! :D";
+                clearTimeout(hold);
+                hold = setTimeout(() => {
+                    email.classList.remove("copied");
+                    email.textContent = addr;
+                }, 1200);
+            });
+        });
+    });
+</script>
