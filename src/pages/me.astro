@@ -48,7 +48,6 @@ import Layout from "../layouts/Layout.astro";
         margin: 2.5rem 0 0;
     }
 
-    /* the address keeps the registrar's voice inside the sans line */
     .email {
         font-family: var(--font-mono);
         font-size: 0.8125rem;
@@ -72,15 +71,12 @@ import Layout from "../layouts/Layout.astro";
 </style>
 
 <script>
-    // assembled here so the address never appears in the built html,
-    // where harvesters read; a click copies instead of opening a mail app
+    // assembled here so the address never appears in the built html
     document.addEventListener("astro:page-load", () => {
         const email = document.querySelector<HTMLButtonElement>(".email");
         if (!email) return;
         const addr = ["keatonelvins", "gmail.com"].join("@");
         email.textContent = addr;
-        // hold the address's width in ch (mono: 1ch per glyph) so the
-        // swap doesn't reflow the line; the word centers in it
         email.style.minWidth = `${addr.length}ch`;
         let hold: ReturnType<typeof setTimeout>;
         email.addEventListener("click", () => {
