@@ -34,3 +34,13 @@
   w: 8
   x: 8
   mt: 6
+
+- id: observation-car
+  w: 10
+  x: 2
+  mt: 4
+
+- id: view-from-flamsbana
+  w: 10
+  x: 6
+  mt: 4
