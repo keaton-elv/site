@@ -5,13 +5,13 @@ import Layout from "../layouts/Layout.astro";
 <Layout title="me" description="a few things you ought to know">
     <main class="me">
         <div>
-            <p>Keaton is an artist and researcher based in SF</p>
+            <p>Keaton is a writer and researcher based in San Francisco</p>
             <p>
                 He likes to read and splash around in the bay and get all
                 shivery
             </p>
             <p class="write">
-                Write to him at <button
+                Say hi at <button
                     class="email"
                     type="button"
                     title="copy to clipboard"
@@ -44,13 +44,9 @@ import Layout from "../layouts/Layout.astro";
         margin: 0 0 0.75em;
     }
 
-    .write {
-        margin: 2.5rem 0 0;
-    }
-
     .email {
         font-family: var(--font-mono);
-        font-size: 0.8125rem;
+        font-size: 1rem;
         color: var(--dim);
         transition: color 120ms ease;
     }
@@ -65,7 +61,7 @@ import Layout from "../layouts/Layout.astro";
 
     @media (max-width: 45rem) {
         .me > div {
-            font-size: 1rem;
+            font-size: 1.3rem;
         }
     }
 </style>
