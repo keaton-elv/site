@@ -10,7 +10,7 @@ archive light table: an even glow they rest on. both are neutral chroma.
 
 | token    | light table | scanner bed |
 | -------- | ----------- | ----------- |
-| `--bg`   | `#f8f8f8`   | `#0f0f0f`   |
+| `--bg`   | `#f8f8f8`   | `#0d0d0d`   |
 | `--ink`  | `#101010`   | `#f0f0f0`   |
 | `--dim`  | `#707070`   | `#909090`   |
 | `--line` | `#d7d7d7`   | `#2b2b2b`   |

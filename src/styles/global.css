@@ -3,7 +3,7 @@
 
 :root {
   color-scheme: light dark;
-  --bg: light-dark(#f8f8f8, #0f0f0f);
+  --bg: light-dark(#f8f8f8, #0d0d0d);
   --ink: light-dark(#101010, #f0f0f0);
   --dim: light-dark(#707070, #909090);
   --line: light-dark(#d7d7d7, #2b2b2b);

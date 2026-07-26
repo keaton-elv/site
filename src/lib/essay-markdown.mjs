@@ -1,10 +1,14 @@
 /**
  * The essay voice, as a Sätteri plugin. Essays stay plain markdown plus:
  *
- *   :::aside[phrase]   An aside written *before* the paragraph it annotates.
- *   ...                Where `phrase` occurs in that paragraph it is marked
- *   :::                (inverted), and mirrored as the aside's first line.
- *                      Asides stack: several may precede one paragraph.
+ *   :::aside[phrase]   An aside written *after* the paragraph it annotates
+ *   ...                (asides stack: a run of them may follow one
+ *   :::                paragraph). Where `phrase` occurs in that paragraph
+ *                      it is marked (inverted), and mirrored as the aside's
+ *                      first line. The paragraph and its run are rebuilt as
+ *                      `.annotated` (paragraph, then `.asides`) so one DOM
+ *                      order serves both the margin hang and the phone's
+ *                      in-flow below-the-paragraph reading.
  *
  *   :::notes           A section's own footnote block, kept at the end of
  *   † ...              its h2 section. Lines are labelled with daggers,
@@ -44,69 +48,109 @@ function splitDaggers(node) {
     .map((run) => (DAGGERS.test(run) ? sup(run) : { type: 'text', value: run }));
 }
 
-export const essayMarkdown = () => {
-  // Filled by the aside visitor; the paragraph that directly follows an
-  // aside (found again by parent + position) carries the marked phrase.
-  const anchors = [];
+/** Deep-copy a subtree into plain nodes: forces lazy children, drops positions. */
+const clone = (node) => {
+  const out = {};
+  for (const key of Object.keys(node)) if (key !== 'position') out[key] = node[key];
+  if (node.children) out.children = node.children.map(clone);
+  return out;
+};
 
-  return {
-    name: 'essay-markdown',
+const textOf = (node) => node.value ?? (node.children ?? []).map(textOf).join('');
 
-    containerDirective(node, ctx) {
-      if (node.name === 'notes') {
-        ctx.setProperty(node, 'data', { hName: 'footer', hProperties: { class: 'notes' } });
-        return;
-      }
-      if (node.name === 'wide' || node.name === 'full') {
-        ctx.setProperty(node, 'data', { hName: 'div', hProperties: { class: node.name } });
-        return;
-      }
-      if (node.name !== 'aside') return;
-      ctx.setProperty(node, 'data', { hName: 'aside' });
-      const label = node.children[0];
+const isAside = (node) => node?.type === 'containerDirective' && node.name === 'aside';
+
+const div = (className, children) => ({
+  type: 'containerDirective',
+  name: className,
+  data: { hName: 'div', hProperties: { class: className } },
+  children,
+});
+
+export const essayMarkdown = () => ({
+  name: 'essay-markdown',
+
+  containerDirective(node, ctx) {
+    if (node.name === 'notes') {
+      ctx.setProperty(node, 'data', { hName: 'footer', hProperties: { class: 'notes' } });
+      return;
+    }
+    if (node.name === 'wide' || node.name === 'full') {
+      ctx.setProperty(node, 'data', { hName: 'div', hProperties: { class: node.name } });
+      return;
+    }
+    if (node.name !== 'aside') return;
+
+    const parent = ctx.parent(node);
+    const siblings = parent?.children ?? [];
+    const at = ctx.indexOf(node);
+    const target = siblings[at - 1];
+
+    // A run of consecutive asides is handled once, from its head.
+    if (isAside(target)) return;
+    const run = [];
+    for (let i = at; isAside(siblings[i]); i++) run.push(siblings[i]);
+
+    // The originals are removed below; clones are re-filed inside the wrapper.
+    const phrases = [];
+    const asides = run.map((a) => {
+      const copy = clone(a);
+      copy.data = { hName: 'aside' };
+      const label = copy.children[0];
       if (label?.data?.directiveLabel) {
-        ctx.setProperty(label, 'data', { hName: 'span', hProperties: { class: 'anchor' } });
-        const parent = ctx.parent(node);
-        const siblings = parent?.children ?? [];
-        let index = ctx.indexOf(node) + 1;
-        while (siblings[index]?.type === 'containerDirective' && siblings[index].name === 'aside') index += 1;
-        anchors.push({ phrase: ctx.textContent(label), parent, index });
+        phrases.push(textOf(label));
+        label.data = { hName: 'span', hProperties: { class: 'anchor' } };
       }
-    },
+      return copy;
+    });
 
-    paragraph(node, ctx) {
-      if (node.data?.directiveLabel) return;
-      const parent = ctx.parent(node);
-      const inNotes = parent?.type === 'containerDirective' && parent.name === 'notes';
-      const index = ctx.indexOf(node);
-      const phrases = anchors.filter((a) => a.parent === parent && a.index === index).map((a) => a.phrase);
+    // Nothing to hang from: render the asides where they stand.
+    if (target?.type !== 'paragraph') {
+      run.forEach((a, i) => ctx.replaceNode(a, asides[i]));
+      return;
+    }
 
-      let changed = phrases.length > 0;
-      let out = node.children;
-      for (const phrase of phrases) {
+    // Mark each phrase in the paragraph; daggers are redone since this
+    // children rewrite supersedes the paragraph visitor's earlier one.
+    const found = phrases.filter((p) => target.children.some((ch) => ch.type === 'text' && ch.value.includes(p)));
+    if (found.length) {
+      let out = target.children.map(clone);
+      for (const phrase of found) {
         out = out.flatMap((child) => {
           if (child.type !== 'text' || !child.value.includes(phrase)) return [child];
           const [before, ...rest] = child.value.split(phrase);
           return [{ type: 'text', value: before }, mark(phrase), { type: 'text', value: rest.join(phrase) }];
         });
       }
-      out = out.flatMap((child) => {
-        const runs = inNotes ? null : splitDaggers(child);
-        if (runs) changed = true;
-        return runs ?? [child];
-      });
-      if (changed) ctx.setProperty(node, 'children', out);
-    },
+      out = out.flatMap((child) => splitDaggers(child) ?? [child]);
+      ctx.setProperty(target, 'children', out);
+    }
 
-    textDirective(node, ctx) {
-      if (node.name === 'sc') ctx.setProperty(node, 'data', { hName: 'span', hProperties: { class: 'sc' } });
-    },
+    ctx.wrapNode(target, div('annotated', [div('asides', asides)]));
+    run.forEach((a) => ctx.removeNode(a));
+  },
 
-    image(node, ctx) {
-      const parent = ctx.parent(node);
-      if (parent?.type !== 'paragraph' || parent.children.length !== 1) return;
-      ctx.setProperty(parent, 'data', { hName: 'figure' });
-      if (node.title) ctx.appendChild(parent, { type: 'emphasis', data: { hName: 'figcaption' }, children: caption(node.title) });
-    },
-  };
-};
+  paragraph(node, ctx) {
+    if (node.data?.directiveLabel) return;
+    const parent = ctx.parent(node);
+    if (parent?.type === 'containerDirective' && parent.name === 'notes') return;
+    let changed = false;
+    const out = node.children.flatMap((child) => {
+      const runs = splitDaggers(child);
+      if (runs) changed = true;
+      return runs ?? [child];
+    });
+    if (changed) ctx.setProperty(node, 'children', out);
+  },
+
+  textDirective(node, ctx) {
+    if (node.name === 'sc') ctx.setProperty(node, 'data', { hName: 'span', hProperties: { class: 'sc' } });
+  },
+
+  image(node, ctx) {
+    const parent = ctx.parent(node);
+    if (parent?.type !== 'paragraph' || parent.children.length !== 1) return;
+    ctx.setProperty(parent, 'data', { hName: 'figure' });
+    if (node.title) ctx.appendChild(parent, { type: 'emphasis', data: { hName: 'figcaption' }, children: caption(node.title) });
+  },
+});

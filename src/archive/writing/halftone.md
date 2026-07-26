@@ -28,6 +28,8 @@ He assembles his brothers and a few coworkers and pitches a new series: paperbac
 
 The board rejects his idea, so Allen funds it himself. By the end of the year, Penguin Books has twenty books published and over a million copies sold. Four years later, Penguin is everywhere, and newlyweds Ian and Betty Ballentine are sent to New York to establish an American branch.§
 
+Pocket Books, funded by Simon & Schuster, is also in New York, although their [colophon](https://en.wikipedia.org/wiki/Colophon_(publishing)) depicts a kangaroo named Gertrude and not a penguin named Alan. Pocket and Penguin both print on cheap, untreated wood-pulp paper with glued spines and tiny margins, although Pocket runs even smaller (4.25in x 6.5in) compared to the A-Format (4.375in x 7in) used by Penguin. But the most apparent difference is in the cover.
+
 :::aside[Alan]
 Niche fact, only two [primary](https://x.com/penguinrandom/status/1238467600692047872) [sources](https://www.fastcompany.com/91501856/how-penguin-random-house-set-its-penguin-logo-free)
 :::
@@ -35,15 +37,13 @@ Niche fact, only two [primary](https://x.com/penguinrandom/status/12384676006920
 hence "pulp fiction"
 :::
 
-Pocket Books, funded by Simon & Schuster, is also in New York, although their [colophon](https://en.wikipedia.org/wiki/Colophon_(publishing)) depicts a kangaroo named Gertrude and not a penguin named Alan. Pocket and Penguin both print on cheap, untreated wood-pulp paper with glued spines and tiny margins, although Pocket runs even smaller (4.25in x 6.5in) compared to the A-Format (4.375in x 7in) used by Penguin. But the most apparent difference is in the cover.
-
 ![](../archive/halftone/penguin_vs_pocket.avif "Both publish Agatha Christie in their first ten books (#6 and #5 respectively)")
+
+Penguin wants to bring dignity to the overlooked paperback and opt for simple typography with plain color-coded bands by genre. Pocket look at their vendors—newsstands, subway stations, and drugstores—and realize they are something entirely new: not quite a magazine, yet long departed from the austere hardcover. They don't even sell in bookstores initially.
 
 :::aside[color-coded]
 orange for fiction, green for mystery, cerise for travel and adventure, etc.
 :::
-
-Penguin wants to bring dignity to the overlooked paperback and opt for simple typography with plain color-coded bands by genre. Pocket look at their vendors—newsstands, subway stations, and drugstores—and realize they are something entirely new: not quite a magazine, yet long departed from the austere hardcover. They don't even sell in bookstores initially.
 
 :::notes
 † [The History Of Penguin Books](https://www.penguinfirsteditions.com/index.php?cat=history). penguinfirsteditions

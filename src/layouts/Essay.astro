@@ -102,8 +102,9 @@ const spreads = sections.map((section) => {
     .essay header.spread {
         margin-top: 0;
     }
+    /* no section break under the title; the lede's own margin sets the gap */
     .essay header.spread + .spread {
-        margin-top: 1rem;
+        margin-top: 0;
     }
 
     .essay h1 {
@@ -151,19 +152,23 @@ const spreads = sections.map((section) => {
         hyphenate-limit-chars: 6 3 3;
     }
 
-    /* asides hang in the margin, anchored to the paragraph they precede */
-    .essay aside {
-        float: right;
-        clear: right;
-        width: var(--aside-w);
-        margin-right: calc(-1 * (var(--aside-w) + var(--aside-gap)));
-        font: 400 0.8125rem/1.55 var(--font-mono);
+    /* asides hang in the margin, top-aligned with the paragraph they
+       follow; on the phone they stay in flow, below it */
+    .essay .annotated {
+        position: relative;
     }
-    .essay .recto aside {
-        float: left;
-        clear: left;
-        margin-right: 0;
-        margin-left: calc(-1 * (var(--aside-w) + var(--aside-gap)));
+    .essay .asides {
+        position: absolute;
+        top: 0;
+        left: calc(100% + var(--aside-gap));
+        width: var(--aside-w);
+    }
+    .essay .recto .asides {
+        left: auto;
+        right: calc(100% + var(--aside-gap));
+    }
+    .essay aside {
+        font: 400 0.8125rem/1.55 var(--font-mono);
     }
     .essay aside + aside {
         margin-top: 1.25rem;
@@ -192,9 +197,6 @@ const spreads = sections.map((section) => {
     }
 
     /* breakouts: .wide spans into the aside margin, .full takes the window */
-    .essay .spread > :is(.wide, .full) {
-        clear: both;
-    }
     .essay .spread > .wide {
         width: calc(var(--measure) + var(--aside-gap) + var(--aside-w));
     }
@@ -254,11 +256,11 @@ const spreads = sections.map((section) => {
             width: auto;
             margin-left: 0;
         }
-        .essay aside,
-        .essay .recto aside {
-            float: none;
-            clear: none;
+        .essay .asides {
+            position: static; /* left/right no longer apply, recto included */
             width: auto;
+        }
+        .essay aside {
             margin: 1.75rem 0;
             padding-left: 1.25rem;
             border-left: 1px solid var(--ink);
