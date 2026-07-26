@@ -4,13 +4,15 @@
  *   :::aside[phrase]   An aside written *before* the paragraph it annotates.
  *   ...                Where `phrase` occurs in that paragraph it is marked
  *   :::                (inverted), and mirrored as the aside's first line.
+ *                      Asides stack: several may precede one paragraph.
  *
  *   :::notes           A section's own footnote block, kept at the end of
  *   † ...              its h2 section. Lines are labelled with daggers,
  *   :::                not numbers: † ‡ § ‖ ¶
  *
- *   ![alt](src "cap")  An image with a quoted title becomes a <figure>
- *                      with the title as its <figcaption>.
+ *   ![alt](src "cap")  An image alone in its paragraph becomes a <figure>;
+ *                      a quoted title becomes its <figcaption>, `_runs_`
+ *                      in the title set italic.
  *
  *   † ‡ § ‖ ¶            Dagger marks in body text are set superscript.
  *
@@ -24,6 +26,14 @@ const DAGGERS = /([†‡§‖¶]+)/;
 
 const sup = (value) => ({ type: 'emphasis', data: { hName: 'sup' }, children: [{ type: 'text', value }] });
 const mark = (value) => ({ type: 'emphasis', data: { hName: 'mark' }, children: [{ type: 'text', value }] });
+
+/** A title string's `_runs_` become emphasis; titles are never parsed as markdown. */
+const caption = (title) =>
+  title
+    .split(/_([^_]+)_/)
+    .flatMap((run, i) =>
+      i % 2 ? [{ type: 'emphasis', children: [{ type: 'text', value: run }] }] : run ? [{ type: 'text', value: run }] : [],
+    );
 
 /** Split one text node into text/sup runs; returns null when no daggers. */
 function splitDaggers(node) {
@@ -56,7 +66,11 @@ export const essayMarkdown = () => {
       const label = node.children[0];
       if (label?.data?.directiveLabel) {
         ctx.setProperty(label, 'data', { hName: 'span', hProperties: { class: 'anchor' } });
-        anchors.push({ phrase: ctx.textContent(label), parent: ctx.parent(node), index: ctx.indexOf(node) + 1 });
+        const parent = ctx.parent(node);
+        const siblings = parent?.children ?? [];
+        let index = ctx.indexOf(node) + 1;
+        while (siblings[index]?.type === 'containerDirective' && siblings[index].name === 'aside') index += 1;
+        anchors.push({ phrase: ctx.textContent(label), parent, index });
       }
     },
 
@@ -64,16 +78,19 @@ export const essayMarkdown = () => {
       if (node.data?.directiveLabel) return;
       const parent = ctx.parent(node);
       const inNotes = parent?.type === 'containerDirective' && parent.name === 'notes';
-      const phrase = anchors.find((a) => a.parent === parent && a.index === ctx.indexOf(node))?.phrase ?? null;
+      const index = ctx.indexOf(node);
+      const phrases = anchors.filter((a) => a.parent === parent && a.index === index).map((a) => a.phrase);
 
-      let changed = Boolean(phrase);
-      const out = node.children.flatMap((child) => {
-        if (phrase && child.type === 'text' && child.value.includes(phrase)) {
+      let changed = phrases.length > 0;
+      let out = node.children;
+      for (const phrase of phrases) {
+        out = out.flatMap((child) => {
+          if (child.type !== 'text' || !child.value.includes(phrase)) return [child];
           const [before, ...rest] = child.value.split(phrase);
-          const head = { type: 'text', value: before };
-          const tail = { type: 'text', value: rest.join(phrase) };
-          return [...(splitDaggers(head) ?? [head]), mark(phrase), ...(splitDaggers(tail) ?? [tail])];
-        }
+          return [{ type: 'text', value: before }, mark(phrase), { type: 'text', value: rest.join(phrase) }];
+        });
+      }
+      out = out.flatMap((child) => {
         const runs = inNotes ? null : splitDaggers(child);
         if (runs) changed = true;
         return runs ?? [child];
@@ -87,9 +104,9 @@ export const essayMarkdown = () => {
 
     image(node, ctx) {
       const parent = ctx.parent(node);
-      if (parent?.type !== 'paragraph' || !node.title) return;
+      if (parent?.type !== 'paragraph' || parent.children.length !== 1) return;
       ctx.setProperty(parent, 'data', { hName: 'figure' });
-      ctx.appendChild(parent, { type: 'emphasis', data: { hName: 'figcaption' }, children: [{ type: 'text', value: node.title }] });
+      if (node.title) ctx.appendChild(parent, { type: 'emphasis', data: { hName: 'figcaption' }, children: caption(node.title) });
     },
   };
 };
