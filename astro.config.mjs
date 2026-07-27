@@ -62,6 +62,7 @@ export default defineConfig({
       options: {
         variants: [
           { src: ['./src/fonts/PPNeueMontrealText-Book.woff2'], weight: 400, style: 'normal' },
+          { src: ['./src/fonts/PPNeueMontreal-Regular.woff2'], weight: 500, style: 'normal' },
           { src: ['./src/fonts/PPNeueMontreal-Semibold.woff2'], weight: 600, style: 'normal' },
           { src: ['./src/fonts/PPNeueMontreal-Hairline.woff2'], weight: 100, style: 'normal' },
         ],

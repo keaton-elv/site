@@ -1,11 +1,93 @@
 ---
 import Layout from "../layouts/Layout.astro";
+
+const likes = [
+    {
+        term: "Å",
+        note: "is the town at the very end of the road in Lofoten, Norway",
+    },
+    {
+        term: "Blackberry Jam",
+        note: "is a food product made from blackberries, water, and sugar. It is good on skyr or toast",
+    },
+    {
+        term: "Clay",
+        note: "is a type of fine-grained soil. It is cold in the bag and warm in the hand and also the first known writing medium (clay tablets)",
+    },
+    {
+        term: "Fatsia japonica",
+        note: "is a species of plant in the family Araliaceae, native to southern Japan and Korea. I have a ‘Spider’s Web’ on my desk",
+    },
+    {
+        term: "Fennel",
+        note: "is a flowering plant species in the carrot family. Dried fennel seeds taste similar to anise and are wonderful in sausage or pasta",
+    },
+    {
+        term: "Gnocchi alla Sorrentina",
+        note: "is a classic dish from Sorrento. The frozen TJ’s version uses pregelatinized gnocchi made in Lazio. They are like little rubber balls",
+    },
+    {
+        term: "Grids",
+        note: "are tessellations of n-dimensional Euclidean space by congruent parallelotopes",
+    },
+    {
+        term: "Hum",
+        note: "is a poem by Mary Oliver from <i>New and Selected Poems: Volume Two</i> (2005)",
+    },
+    {
+        term: "Mason Jars",
+        note: "are glass jars used to preserve food. They are named after American tinsmith John Landis Mason",
+    },
+    {
+        term: "Peter Mendelsund",
+        note: "is an author, painter, and graphic designer. He wrote <i>The Look of the Book</i>, which is cherished and stands above my ‘Spider’s Web’",
+    },
+    { term: "Rachel Cusk", note: "is probably god" },
+    {
+        term: "Raising Arizona",
+        note: "is a 1987 American crime comedy film written, directed, and produced by Joel and Ethan Coen",
+    },
+    {
+        term: "Reward (album)",
+        note: "is the fifth studio album by Welsh musician Cate Le Bon. Cate also produced Horsegirl’s <i>Phonetics On and On</i> <3",
+    },
+    {
+        term: "Tap Water",
+        note: "is water supplied through a tap. It tastes pretty good in San Francisco, at least compared to other places",
+    },
+    {
+        term: "The Little Prince",
+        note: "is a novella written and illustrated by French writer and aviator Antoine de Saint-Exupéry in 1943",
+    },
+    {
+        term: "The Pale King",
+        note: "is an unfinished novel by David Foster Wallace, published posthumously on April 15, 2011",
+    },
+    {
+        term: "The Sun",
+        note: "is a massive sphere of hot plasma, heated to incandescence by nuclear fusion. It’s also a tarot card that depicts a naked child riding a white horse",
+    },
+    {
+        term: "The Zürau Aphorisms",
+        note: "are 109 aphorisms of Franz Kafka, written while suffering from tuberculosis. He described this period as perhaps the best in his life",
+    },
+    {
+        term: "Tiny Redwoods",
+        note: "are miniature specimens of <i>Sequoia sempervirens</i>. You can spot some in the Bonsai Garden at Lake Merritt",
+    },
+    {
+        term: "Vermilion",
+        note: "is a brilliant orange-red color. The term comes from Old French <i>vermeillon</i>, derived from <i>vermeil</i>, from Latin <i>vermiculus</i> – the diminutive of <i>vermis</i> or ‘worm’",
+    },
+];
 ---
 
-<Layout title="me" description="a few things you ought to know">
+<Layout title="me" description="a few things you ought to know" sans={[500]}>
     <main class="me">
-        <div>
-            <p>Keaton is a writer and researcher based in San Francisco</p>
+        <div class="bio">
+            <p>
+                Keaton is a <s>writer</s> designer and researcher based in San Francisco
+            </p>
             <p>
                 He likes to read and splash around in the bay and get all
                 shivery
@@ -18,30 +100,71 @@ import Layout from "../layouts/Layout.astro";
                     aria-live="polite"></button>
             </p>
         </div>
+        <p class="likes">
+            {
+                likes.map(({ term, note }) => (
+                    <span class="like">
+                        {`${term}. `}
+                        {note && (
+                            <span class="note">
+                                <i>{term}</i> <Fragment set:html={note} />
+                            </span>
+                        )}
+                    </span>
+                ))
+            }
+        </p>
     </main>
 </Layout>
 
 <style>
     .me {
+        --pad: 2.5rem;
+        position: relative;
         display: flex;
         flex-direction: column;
-        justify-content: center;
+        row-gap: 3rem;
         min-height: 100vh;
         min-height: 100svh;
-        padding: 2rem 1.25rem;
+        padding: 4rem var(--pad) 5rem;
     }
 
-    .me > div {
-        width: 100%;
+    .bio {
         max-width: 36rem;
-        margin-inline: auto;
         font-family: var(--font-sans);
         font-size: 1.125rem;
-        line-height: 1.45;
+        line-height: 1;
     }
 
-    p {
-        margin: 0 0 0.75em;
+    .bio p {
+        margin: 0 0 1em;
+    }
+
+    .likes {
+        font-size: clamp(2rem, 4.6vw, 4.25rem);
+        margin-block: auto;
+        font-family: var(--font-sans);
+        font-weight: 500;
+        line-height: 1.2;
+        text-align: justify;
+    }
+
+    .like:hover {
+        background: var(--ink);
+        color: var(--bg);
+    }
+
+    .note {
+        display: none;
+    }
+    .like:hover .note {
+        display: block;
+        position: absolute;
+        inset-inline: var(--pad);
+        bottom: 2rem;
+        font: 400 0.875rem/1.5 var(--font-mono);
+        color: var(--ink);
+        text-align: left;
     }
 
     .email {
@@ -60,8 +183,15 @@ import Layout from "../layouts/Layout.astro";
     }
 
     @media (max-width: 45rem) {
-        .me > div {
-            font-size: 1.3rem;
+        .me {
+            --pad: 1rem;
+            padding-top: 4rem;
+        }
+        .bio {
+            font-size: 1rem;
+        }
+        .bio p {
+            margin: 0 0 0.8em;
         }
     }
 </style>
