@@ -605,10 +605,18 @@ const groups = [
         if (row && !row.classList.contains("active")) select(row, false);
     });
     // a same-page pick never swaps, so it must close here; a cut
-    // instead holds the panel until after-swap lifts it
+    // instead holds the panel until after-swap lifts it. on mobile the
+    // scrub owns selection, so a tapped row claims it by hand — the
+    // inversion (and the cutout) answer the tap while the cut is in flight
     scroller.addEventListener("click", (e) => {
         const a = (e.target as Element).closest<HTMLAnchorElement>("a.row");
-        if (a && a.pathname === location.pathname) panel.close();
+        if (!a) return;
+        if (a.pathname === location.pathname) {
+            panel.close();
+            return;
+        }
+        if (mobile.matches && !a.classList.contains("active"))
+            select(a, false);
     });
 
     // mobile scrub: the row passing beneath the cutout holds the selection;

@@ -141,7 +141,7 @@ const likes = [
     }
 
     .likes {
-        font-size: clamp(2rem, 4.6vw, 4.25rem);
+        font-size: clamp(1.9rem, 4.6vw, 4.25rem);
         margin-block: auto;
         font-family: var(--font-sans);
         font-weight: 500;
@@ -186,12 +186,21 @@ const likes = [
         .me {
             --pad: 1rem;
             padding-top: 4rem;
+            row-gap: 2rem;
+        }
+        .likes {
+            margin-block: 0 auto;
         }
         .bio {
             font-size: 1rem;
         }
         .bio p {
             margin: 0 0 0.8em;
+        }
+        .like:hover .note {
+            font-size: 0.75rem;
+            line-height: 1.35;
+            bottom: 1rem;
         }
     }
 </style>
