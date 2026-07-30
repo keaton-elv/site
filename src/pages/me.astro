@@ -39,7 +39,7 @@ const likes = [
         note: "are geographic boundaries used to demarcate differences in a particular word's meaning across a region",
     },
     {
-        term: "Joking",
+        term: "Jumping",
         note: "",
     },
     {
@@ -168,7 +168,7 @@ const likes = [
     }
 
     .likes {
-        font-size: clamp(1.9rem, 4.6vw, 4.25rem);
+        font-size: clamp(1.9rem, 4.6vw, 4rem);
         margin-block: auto;
         font-family: var(--font-sans);
         font-weight: 500;
@@ -212,14 +212,17 @@ const likes = [
     @media (max-width: 45rem) {
         .me {
             --pad: 1rem;
-            padding-top: 4rem;
-            row-gap: 2rem;
+            padding-top: 1.75rem;
+            row-gap: 1.5rem;
         }
         .likes {
-            margin-block: 0 auto;
+            margin-block: auto;
+            font-size: clamp(1.8rem, 4.6vw, 4.25rem);
+            line-height: 1.2;
         }
         .bio {
-            font-size: 1rem;
+            max-width: calc(100% - 3.75rem);
+            font-size: 0.9375rem;
         }
         .bio p {
             margin: 0 0 0.8em;
