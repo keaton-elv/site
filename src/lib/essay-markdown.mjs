@@ -20,7 +20,8 @@
  *
  *   † ‡ § ‖ ¶            Dagger marks in body text are set superscript.
  *
- *   :sc[text]          Set in etbook's true small capitals.
+ *   :sc[text]          Set in etbook's true small capitals. Opening a
+ *                      paragraph, its first letter is a full capital.
  *
  *   :::wide / :::full  Let the wrapped content span into the aside margin,
  *                      or bleed across the whole window.
@@ -144,7 +145,11 @@ export const essayMarkdown = () => ({
   },
 
   textDirective(node, ctx) {
-    if (node.name === 'sc') ctx.setProperty(node, 'data', { hName: 'span', hProperties: { class: 'sc' } });
+    if (node.name !== 'sc') return;
+    ctx.setProperty(node, 'data', { hName: 'span', hProperties: { class: 'sc' } });
+    const parent = ctx.parent(node);
+    if (parent?.type === 'paragraph' && ctx.indexOf(node) === 0)
+      ctx.setProperty(parent, 'data', { hName: 'p', hProperties: { class: 'versal' } });
   },
 
   image(node, ctx) {

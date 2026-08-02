@@ -23,7 +23,8 @@ from the panel (stored in `localStorage.theme`).
 - **mono — pp neue montreal mono.** the default voice: ui, captions, metadata,
   asides, footnotes, daggers, the index. this is the archive's registrar tone.
 - **serif — etbook.** the essay voice: body and headings. `:sc[text]` in markdown 
-  sets true smallcaps. never use outside of main text.
+  sets true smallcaps — opening a paragraph, its first letter is a full
+  capital. never use outside of main text.
 - **sans — pp neue montreal.** for special occasions: the 404's giant numerals, 
   essay anchor asides, the search box in the nav panel.
 
