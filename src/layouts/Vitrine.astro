@@ -48,7 +48,12 @@ const vars = [
 const meta = [a.device, a.year].filter(Boolean).join(", ");
 ---
 
-<Layout title={a.title} prev={prev} next={next}>
+<Layout
+    title={a.title}
+    description={`${a.title} — ${a.medium}, ${a.year}`}
+    prev={prev}
+    next={next}
+>
     <main class="vitrine" style={vars}>
         <figure>
             {
