@@ -16,6 +16,12 @@
   dek: pocketbook covers
   image: ../archive/design/halftone.avif
 
+- title: ET book
+  year: 2026
+  medium: writing
+  dek: the serif of this site
+  image: ../archive/design/et-book.avif
+
 - title: sunbeams on mt. tam
   year: 2026
   medium: video
