@@ -1,0 +1,11 @@
+The moon is as big as the sun from here. 
+One is small and 
+one is far and 
+I guess it just worked out that way. 
+Really it's a coincidence, 
+like how we have hummingbirds. 
+Things could be 
+very different
+but thankfully hummingbirds worked out. 
+There are lots of other planets too. 
+Of course we're on one of the wet ones
