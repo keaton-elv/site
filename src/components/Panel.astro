@@ -98,7 +98,8 @@ const groups = [
     style={`--thumb-h: ${THUMB_H / 16}rem`}
     transition:persist="panel"
 >
-    <div class="frame">
+    {/* nosnippet: google was quoting the index rows as every page's snippet */}
+    <div class="frame" data-nosnippet>
         <input
             id="panel-filter"
             type="search"
