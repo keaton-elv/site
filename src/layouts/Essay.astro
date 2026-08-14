@@ -82,7 +82,7 @@ const spreads = sections.map((section) => {
         --measure: 48rem;
         --aside-w: 15rem;
         --aside-gap: 3.5rem;
-        --pad-left: 8rem;
+        --pad-left: 10rem;
         padding: 4rem 2rem 30svh var(--pad-left);
         font-family: var(--font-serif);
         font-size: 1.625rem;
@@ -146,10 +146,10 @@ const spreads = sections.map((section) => {
     }
 
     .essay .spread > p,
+    .essay .annotated > p,
     .essay blockquote > p {
         text-align: justify;
-        hyphens: auto;
-        hyphenate-limit-chars: 6 3 3;
+        hyphens: none;
     }
 
     /* asides hang in the margin, top-aligned with the paragraph they
@@ -277,6 +277,7 @@ const spreads = sections.map((section) => {
             line-height: 1.45;
         }
         .essay .spread > p,
+        .essay .annotated > p,
         .essay blockquote > p {
             text-align: left;
         }
