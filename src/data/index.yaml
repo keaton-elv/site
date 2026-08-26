@@ -130,3 +130,9 @@
   medium: video
   device: iPhone
   video: /media/zephyr-rear-window.mp4
+
+- title: seagrass
+  year: 2026
+  medium: video
+  device: iPhone
+  video: /media/seagrass.mp4
