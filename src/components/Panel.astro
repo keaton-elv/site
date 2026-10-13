@@ -446,6 +446,7 @@ const groups = [
 </style>
 
 <script>
+    import { navigate } from "astro:transitions/client";
     import { warm } from "../lib/warm";
 
     const panel = document.getElementById("panel") as HTMLDialogElement;
@@ -551,18 +552,41 @@ const groups = [
         if (scroll) row?.scrollIntoView({ block: "nearest" });
     };
 
+    // the filter keeps filing order, but the pick (and so enter) goes to
+    // the closest match: a name or address typed whole, then its start,
+    // then a word's start — "me" lands on /me, not h(ome)
+    const query = () => filter.value.trim().toLowerCase();
+    const closeness = (row: HTMLElement, q: string) => {
+        const title = row.firstElementChild!.textContent!.toLowerCase();
+        const id = row.dataset.thumb!;
+        if (title === q || id === q) return 0;
+        if (title.startsWith(q) || id.startsWith(q)) return 1;
+        if (title.split(/[^\p{L}\p{N}]+/u).some((w) => w.startsWith(q))) return 2;
+        return 3;
+    };
+    const best = (q: string) => {
+        const list = visible();
+        let pick = list[0];
+        let at = Infinity;
+        for (const row of list) {
+            const c = closeness(row, q);
+            if (c < at) [pick, at] = [row, c];
+        }
+        return pick;
+    };
+
     function apply(q: string) {
         for (const row of rows)
             row.hidden = !row.textContent!.toLowerCase().includes(q);
         for (const section of panel.querySelectorAll("section"))
             section.hidden = !section.querySelector(".row:not([hidden])");
-        select(q ? visible()[0] : undefined);
+        select(q ? best(q) : undefined);
     }
 
     filter.addEventListener("input", () => {
         // re-anchor: a stale scroll would immediately re-pick by line
         scroller.scrollTop = 0;
-        apply(filter.value.trim().toLowerCase());
+        apply(query());
     });
 
     panel.addEventListener("keydown", (e) => {
@@ -578,9 +602,15 @@ const groups = [
         const list = visible();
         const at = list.findIndex((r) => r.classList.contains("active"));
         if (e.key === "Enter") {
-            if (at >= 0 && document.activeElement === filter) {
-                e.preventDefault();
-                list[at].click();
+            // an ime's enter commits its composition, not the query
+            if (document.activeElement !== filter || e.isComposing) return;
+            e.preventDefault();
+            if (at >= 0) list[at].click();
+            // no match: the query is taken as an address — easter eggs
+            // live off the index, and anything else lands on the 404
+            else if (query()) {
+                const path = query().replace(/^\/+/, "").replace(/\s+/g, "-");
+                navigate(encodeURI(`/${path}`));
             }
             return;
         }
@@ -621,8 +651,8 @@ const groups = [
     });
 
     // mobile scrub: the row passing beneath the cutout holds the selection;
-    // resting at the top hands it back to the asterism (or the first match
-    // while a query is live, echoing apply)
+    // resting at the top hands it back to the asterism (or the closest
+    // match while a query is live, echoing apply)
     scroller.addEventListener(
         "scroll",
         () => {
@@ -632,7 +662,7 @@ const groups = [
             // the rest zone runs half a row deep — the other half is the
             // first row's window before it, too, reaches the cutout
             if (scroller.scrollTop < Math.max(rowH / 2, 4)) {
-                select(filter.value.trim() ? seek[0] : undefined, false);
+                select(query() ? best(query()) : undefined, false);
                 return;
             }
             // a row holds the selection only while fully clear of the

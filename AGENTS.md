@@ -95,6 +95,8 @@ index strikes its title and marks it `unfiled` in place of its year;
 the page answers with a mono `(unfiled)` beside the title.
 pages are rooms listed in the panel's pages 
 group as they're built, their thumbs filed in `Panel.astro`'s pages list. 
+an easter egg is a page left off it: enter on a query that matches
+nothing goes to /<query> (spaces hyphenated), found or 404. 
 the home scanner-bed is art-directed w/ deliberate spacing in 
 `src/data/home.yaml`
 
